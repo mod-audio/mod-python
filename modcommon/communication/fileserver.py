@@ -3,7 +3,7 @@
 import os, json
 from hashlib import sha1
 import tornado.web
-from mod.communication.torrent import TorrentReceiver, TorrentGenerator, GridTorrentGenerator
+from modcommon.communication.torrent import TorrentReceiver, TorrentGenerator, GridTorrentGenerator
 
 """
 File transfering between Device and Cloud is done by 3 pieces:
