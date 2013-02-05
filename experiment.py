@@ -9,13 +9,24 @@ class LV2Def(object):
     doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
     foaf = rdflib.Namespace('http://xmlns.com/foaf/0.1/')
 
-    def get_object(self, subject, predicate):
+    def _get_object(self, subject, predicate):
         result = self.model.triples([subject, predicate, None])
         try:
             triple = result.next()
         except StopIteration:
             return None
         return triple[2]
+
+    def _serialize(self, subject, structure):
+        data = {}
+        for key, value in structure.items():
+            if isinstance(value, list):
+                ns, struct = value
+                node = self._get_object(subject, ns)
+                data[key] = self._serialize(node, struct)
+            else:
+                data[key] = self._get_object(subject, value)
+        return data
 
 class Bundle(LV2Def):
 
@@ -50,26 +61,26 @@ class Plugin(LV2Def):
     def __init__(self, model, url):
         self.model = model
         self.url = url
-        self.metadata = {}
+        self.serialize()
 
-    def _get_foaf(self, predicate):
-        node = self.get_object(self.url, predicate)
-        foaf = {}
-        foaf['name'] = self.get_object(node, self.foaf.name)
-        foaf['mbox'] = self.get_object(node, self.foaf.mbox)
-        foaf['homepage'] = self.get_object(node, self.foaf.homepage)
-        return foaf
-    
     def serialize(self):
-        md = {}
-        md['name'] = self.get_object(self.url, self.doap.name)
-        md['maintainer'] = self._get_foaf(self.doap.maintainer)
-        md['developer'] = self._get_foaf(self.doap.developer)
-        
+        st = { 'name': self.doap.name,
+               'maintainer': [ self.doap.maintainer, 
+                               { 'name': self.foaf.name,
+                                 'mbox': self.foaf.mbox,
+                                 'homepage': self.foaf.homepage,
+                                 } ],
+               'developer': [ self.doap.maintainer, 
+                               { 'name': self.foaf.name,
+                                 'mbox': self.foaf.mbox,
+                                 'homepage': self.foaf.homepage,
+                                 } ],
+               }
+
+        md = self._serialize(self.url, st)
         self.metadata = json.loads(json.dumps(md))
-        import ipdb; ipdb.set_trace()
         
 
 invada = Bundle('/usr/lib/lv2/invada.lv2')
 for plugin in invada.plugins:
-    plugin.serialize()
+    import ipdb; ipdb.set_trace()
