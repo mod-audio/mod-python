@@ -2,14 +2,14 @@
 
 import rdflib, os, json
 
-class RDFModelField(object):
+class Field(object):
     pass
 
-class RDFName(RDFModelField):
+class NameField(Field):
     def serialized(self, model):
         return unicode(model.subject)
 
-class RDFString(RDFModelField):
+class StringField(Field):
     def __init__(self, predicate):
         self.predicate = predicate
 
@@ -17,7 +17,7 @@ class RDFString(RDFModelField):
         data = model.get_object(model.subject, self.predicate)
         return unicode(data)
 
-class RDFInlineModel(RDFModelField):
+class InlineModelField(Field):
     def __init__(self, model_class, predicate):
         self.model_class = model_class
         self.predicate = predicate
@@ -26,7 +26,7 @@ class RDFInlineModel(RDFModelField):
         node = model.get_object(model.subject, self.predicate)
         return self.model_class(model.graph, node).metadata
 
-class RDFModel(object):
+class Model(object):
 
     rdfschema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
     rdfsyntax = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
@@ -39,6 +39,9 @@ class RDFModel(object):
         self.subject = subject
         self.parsed_files = set()
         self.serialize()
+
+    def triples(self, *args, **kwargs):
+        return self.graph.triples(*args, **kwargs)
 
     def parse(self, path):
         if not path.startswith('file://'):
@@ -67,47 +70,8 @@ class RDFModel(object):
         md = {}
         for attr in dir(self.__class__):
             field = getattr(self.__class__, attr)
-            if not isinstance(field, RDFModelField):
+            if not isinstance(field, Field):
                 continue
             md[attr] = field.serialized(self)
         self.metadata = md
 
-class Person(RDFModel):
-    foaf = rdflib.Namespace('http://xmlns.com/foaf/0.1/')
-
-    name = RDFString(foaf.name)
-    mbox = RDFString(foaf.mbox)
-    homepage = RDFString(foaf.homepage)
-
-    
-class LV2Def(RDFModel):
-
-    lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
-    doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
-
-class Bundle(LV2Def):
-
-    def __init__(self, path):
-        super(Bundle, self).__init__()
-        self.path = path
-        self.parse(os.path.join(path, 'manifest.ttl'))
-        self.parse('units.ttl')
-
-    @property
-    def plugins(self):
-        triples = self.graph.triples([None, 
-                                      self.rdfsyntax.type,
-                                      self.lv2core.Plugin])
-        for triple in triples:
-            yield Plugin(self.graph, triple[0])
-
-class Plugin(LV2Def):
-
-    url = RDFName()
-    name = RDFString(LV2Def.doap.name)
-    maintainer = RDFInlineModel(Person, LV2Def.doap.maintainer)
-    developer = RDFInlineModel(Person, LV2Def.doap.developer)
-
-invada = Bundle('/usr/lib/lv2/invada.lv2')
-for plugin in invada.plugins:
-    import ipdb; ipdb.set_trace()
