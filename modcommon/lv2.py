@@ -7,6 +7,9 @@ from modcommon import json_handler
 class InvalidPlugin(Exception):
     pass
 
+class TTLError(Exception):
+    pass
+
 class PluginCollection(object):
 
     schema_keys = {
@@ -174,9 +177,11 @@ class Plugin(object):
 
         self.binary_file = binary[len('file://'):]
         self.metadata_file = metadata[len('file://'):]
-
-        assert os.path.exists(self.binary_file)
-        assert os.path.exists(self.metadata_file)
+        
+        if not os.path.exists(self.binary_file):
+            raise TTLError("%s in manifest.ttl does not exist" % self.binary_file)
+        if not os.path.exists(self.metadata_file):
+            raise TTLError("%s in manifest.ttl does not exist" % self.metadata_file)
 
         self.graph = rdflib.Graph()
 
@@ -197,7 +202,7 @@ class Plugin(object):
 
         minor = int(metadata.get('minorVersion', 0))
         micro = int(metadata.get('microVersion', 0))
-        
+
         metadata['version'] = '%d.%d' % (minor, micro)
 
         if minor % 2 == 0 and micro % 2 == 0:
