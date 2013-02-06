@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rdflib, os, json
+import rdflib, os, json, sys
 
 class Field(object):
     pass
@@ -10,12 +10,16 @@ class NameField(Field):
         return unicode(model.subject)
 
 class StringField(Field):
-    def __init__(self, predicate):
+    def __init__(self, predicate, filt=None):
         self.predicate = predicate
+        self.filter = filt
 
     def serialized(self, model):
         data = model.get_object(model.subject, self.predicate)
-        return unicode(data)
+        data = unicode(data)
+        if self.filter:
+            data = self.filter(data)
+        return data
 
 class InlineModelField(Field):
     def __init__(self, model_class, predicate):
@@ -24,7 +28,13 @@ class InlineModelField(Field):
 
     def serialized(self, model):
         node = model.get_object(model.subject, self.predicate)
-        return self.model_class(model.graph, node).metadata
+        if (isinstance(self.model_class, unicode) or 
+            isinstance(self.model_class, str)):
+            model_class = getattr(sys.modules[model.__class__.__module__], self.model_class)
+        else:
+            model_class = self.model_class
+
+        return model_class(model.graph, node).metadata
 
 class Model(object):
 
