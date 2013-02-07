@@ -1,7 +1,7 @@
 @prefix test:   <http://test/ns#> .
 @prefix foaf:   <http://person/ns#> .
 
-<http://mytest/string> a test:Item ;
+<http://mytest/item> a test:Item ;
 		       test:name "This is my name";
 		       test:intval 4;
 		       test:floatval 3.141592;
@@ -42,3 +42,9 @@
                            a foaf:Person;
 			   foaf:name "Just John";
                        ].
+
+<http://mytest/otherstuff> a test:OtherStuff ;
+                    test:name "This is one stuff".
+
+<http://mytest/anotherstuff> a test:OtherStuff ;
+                     test:name "This is another stuff".

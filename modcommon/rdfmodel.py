@@ -52,18 +52,23 @@ class FloatField(DataField):
             return float(data)
         except (TypeError, ValueError):
             return None
+
+#mixin
+class ModelField(object):
+    def get_model_class(self, node, model):
+        if (isinstance(self.model_class, unicode) or 
+            isinstance(self.model_class, str)):
+            self.model_class = getattr(sys.modules[model.__class__.__module__], self.model_class)
+
+        return self.model_class
         
-class InlineModelField(DataField):
+class InlineModelField(DataField, ModelField):
     def __init__(self, predicate, model_class, *args, **kwargs):
         super(InlineModelField, self).__init__(predicate, *args, **kwargs)
         self.model_class = model_class
 
     def serialize_data(self, node, model):
-        if (isinstance(self.model_class, unicode) or 
-            isinstance(self.model_class, str)):
-            model_class = getattr(sys.modules[model.__class__.__module__], self.model_class)
-        else:
-            model_class = self.model_class
+        model_class = self.get_model_class(node, model)
 
         if model_class._type:
             for necessary_type in model_class._type.node_types:
@@ -90,6 +95,26 @@ class ListField(Field):
             if data is not None:
                 res.append(data)
         return res                
+
+class ModelSearchField(Field, ModelField):
+    def __init__(self, node_type, model_class):
+        self.node_type = node_type
+        self.model_class = model_class
+
+    def serialized(self, model):
+        res = []
+        for triple in model.triples([None, model.rdfsyntax.type, self.node_type]):
+            subject = triple[0]
+            model_class = self.get_model_class(subject, model)
+            res.append(model_class(subject, model.graph).metadata)
+        return res                
+
+    @property
+    def plugins(self):
+        for triple in self.triples([None, self.rdfsyntax.type, self.lv2core.Plugin]):
+            yield Plugin(triple[0], self.graph)
+
+
 
 class Model(object):
 
@@ -126,14 +151,6 @@ class Model(object):
             self.parse(extension[2])
         self.graph += graph
         
-    def get_object(self, predicate):
-        result = self.graph.triples([self.subject, predicate, None])
-        try:
-            triple = result.next()
-        except StopIteration:
-            return None
-        return triple[2]
-
     def get_objects(self, predicate):
         for result in self.graph.triples([self.subject, predicate, None]):
             yield result[2]

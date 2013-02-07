@@ -4,6 +4,16 @@ from modcommon import rdfmodel as model
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 
+class Bundle(model.Model):
+    
+    plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
+
+    def __init__(self, path):
+        super(Bundle, self).__init__()
+        self.parse(os.path.join(path, 'manifest.ttl'))
+        self.parse('units.ttl')
+        self.serialize()
+
 class Plugin(model.Model):
 
     url = model.IDField()
@@ -28,6 +38,7 @@ class Plugin(model.Model):
 
 class Port(model.Model):
     symbol = model.StringField(lv2core.symbol)
+    name = model.StringField(lv2core.name)
 
 class AudioInputPort(Port):
     _type = model.TypeField(lv2core.AudioPort, lv2core.InputPort)
@@ -47,17 +58,4 @@ class Foaf(model.Model):
     name = model.StringField(foaf.name)
     mbox = model.StringField(foaf.mbox)
     homepage = model.StringField(foaf.homepage)
-
-class Bundle(model.Model):
-    lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
-
-    def __init__(self, path):
-        super(Bundle, self).__init__()
-        self.parse(os.path.join(path, 'manifest.ttl'))
-        self.parse('units.ttl')
-
-    @property
-    def plugins(self):
-        for triple in self.triples([None, self.rdfsyntax.type, self.lv2core.Plugin]):
-            yield Plugin(triple[0], self.graph)
 

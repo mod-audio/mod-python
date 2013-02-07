@@ -1,10 +1,11 @@
 import unittest, os, rdflib
 from modcommon import rdfmodel as model
 
-class TestModel(model.Model):
-    ns = rdflib.Namespace('http://test/ns#')
+ns = rdflib.Namespace('http://test/ns#')
 
-    xis = model.TypeField(ns.Item)
+class TestModel(model.Model):
+
+    _type = model.TypeField(ns.Item)
 
     name = model.StringField(ns.name)
     intval = model.IntegerField(ns.intval)
@@ -59,7 +60,7 @@ class BaseTest(unittest.TestCase):
     
     def __init__(self, *args, **kwargs):
         super(BaseTest, self).__init__(*args, **kwargs)
-        item = TestModel(rdflib.term.URIRef('http://mytest/string'))
+        item = TestModel(rdflib.term.URIRef('http://mytest/item'))
         ttl = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test_rdfmodel.ttl')
         item.parse(ttl)
         item.serialize()
@@ -148,3 +149,25 @@ class TestTypeFilter(BaseTest):
                                                             'age': None,
                                                             'weight': None,
                                                             } ])
+
+class OtherModel(model.Model):
+    name = model.StringField(ns.name)
+
+class ParentModel(model.Model):
+    items = model.ModelSearchField(ns.OtherStuff, OtherModel)
+
+class TestSearchField(BaseTest):
+    def __init__(self, *args, **kwargs):
+        super(BaseTest, self).__init__(*args, **kwargs)
+        item = ParentModel(rdflib.term.URIRef('http://mytest/item'))
+        ttl = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test_rdfmodel.ttl')
+        item.parse(ttl)
+        item.serialize()
+        self.metadata = item.metadata
+
+
+    def test_search_field(self):
+        self.assertEquals(len(self.metadata['items']), 2)
+        self.assertTrue({'name' : u'This is one stuff'} in self.metadata['items'])
+        self.assertTrue({'name' : u'This is another stuff'} in self.metadata['items'])
+
