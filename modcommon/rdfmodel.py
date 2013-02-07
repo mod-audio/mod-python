@@ -2,6 +2,10 @@
 
 import rdflib, os, json, sys
 
+class TypeField(object):
+    def __init__(self, *node_types):
+        self.node_types = node_types
+
 class Field(object):
     pass
 
@@ -61,6 +65,13 @@ class InlineModelField(DataField):
         else:
             model_class = self.model_class
 
+        if model_class._type:
+            for necessary_type in model_class._type.node_types:
+                try:
+                    node_type = model.triples([node, model.rdfsyntax.type, necessary_type]).next()[2]
+                except StopIteration:
+                    return None
+
         return model_class(node, model.graph).metadata
 
 class ListField(Field):
@@ -84,6 +95,8 @@ class Model(object):
 
     rdfschema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
     rdfsyntax = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+
+    _type = None
 
     def __init__(self, subject=None, graph=None, format='n3'):
         if graph:
@@ -129,8 +142,10 @@ class Model(object):
         md = {}
         for attr in dir(self.__class__):
             field = getattr(self.__class__, attr)
-            if not isinstance(field, Field):
-                continue
-            md[attr] = field.serialized(self)
+            if isinstance(field, TypeField):
+                self.__class__._type = field
+            elif isinstance(field, Field):
+                md[attr] = field.serialized(self)
+                
         self.metadata = md
 

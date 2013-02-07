@@ -4,6 +4,8 @@ from modcommon import rdfmodel as model
 class TestModel(model.Model):
     ns = rdflib.Namespace('http://test/ns#')
 
+    xis = model.TypeField(ns.Item)
+
     name = model.StringField(ns.name)
     intval = model.IntegerField(ns.intval)
     floatval = model.FloatField(ns.floatval)
@@ -36,12 +38,22 @@ class TestModel(model.Model):
 
     filterlist = model.ListField(ns.intlist, model.IntegerField, filter=lambda x: x>2.5)
 
+    animallist = model.ListField(ns.animallist, model.InlineModelField, 'Foaf')
+
+    smartpeople = model.ListField(ns.smartpeople, model.InlineModelField, 'SmartPerson')
+
 class Foaf(model.Model):
     foaf = rdflib.Namespace('http://person/ns#')
+
+    _type = model.TypeField(foaf.Person)
 
     name = model.StringField(foaf.name)
     age = model.IntegerField(foaf.age)
     weight = model.FloatField(foaf.weight)
+
+class SmartPerson(Foaf):
+    foaf = rdflib.Namespace('http://person/ns#')
+    _type = model.TypeField(foaf.Person, foaf.Smart)
     
 class BaseTest(unittest.TestCase):
     
@@ -123,4 +135,16 @@ class TestModifier(BaseTest):
 class TestFilter(BaseTest):
     def test_list_filter(self):
         self.assertEquals(self.metadata['filterlist'], [ 3 ])
-        
+
+class TestTypeFilter(BaseTest):
+    def test_type_filter(self):
+        self.assertEquals(self.metadata['animallist'], [ { 'name': 'John',
+                                                           'age': None,
+                                                           'weight': None,
+                                                           } ])
+
+    def test_type_combination_filter(self):
+        self.assertEquals(self.metadata['smartpeople'], [ { 'name': 'Smart John',
+                                                            'age': None,
+                                                            'weight': None,
+                                                            } ])

@@ -6,6 +6,7 @@
 		       test:intval 4;
 		       test:floatval 3.141592;
 		       test:person [
+		           a foaf:Person;
 		           foaf:name "John Smith";
 			   foaf:age 33;
 			   foaf:weight 75.7;
@@ -15,11 +16,29 @@
 		       test:stringlist "One", "Two", "Three";
 		       test:mixedlist "One", 2, 3.141592;
 		       test:personlist [
+		           a foaf:Person;
 		           foaf:name "Person One";
 			   foaf:age 21;
 			   foaf:weight 71.1;
 		       ],[
+                           a foaf:Person;
 		           foaf:name "Person Two";
 			   foaf:age 22;
 			   foaf:weight 72.2;
-		       ].
+		       ];
+
+		       test:animallist [
+		           a foaf:Person;
+			   foaf:name "John";
+		       ],[
+		           a foaf:Dog;
+			   foaf:name "Rex";
+                       ];
+
+		       test:smartpeople [
+		           a foaf:Person, foaf:Smart;
+			   foaf:name "Smart John";
+                       ],[
+                           a foaf:Person;
+			   foaf:name "Just John";
+                       ].
