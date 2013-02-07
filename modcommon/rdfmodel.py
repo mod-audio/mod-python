@@ -10,7 +10,7 @@ class Field(object):
     pass
 
 class IDField(Field):
-    def serialized(self, model):
+    def extract(self, model):
         return unicode(model.subject)
 
 class DataField(Field):
@@ -19,12 +19,15 @@ class DataField(Field):
         self.modifier = modifier
         self.filter = filter
 
-    def serialized(self, model):
+    def extract(self, model):
         for data in model.get_objects(self.predicate):
-            data = self.serialize_data(data, model)
+            data = self.format_data(data, model)
             data = self.modify_and_filter(data)
             if data is not None:
                 return data
+
+    def format_data(self, data, model):
+        raise NotImplemented
 
     def modify_and_filter(self, data):
         if self.modifier:
@@ -34,20 +37,20 @@ class DataField(Field):
         return data
 
 class StringField(DataField):
-    def serialize_data(self, data, model):
+    def format_data(self, data, model):
         if data is None:
             return
         return unicode(data)
 
 class IntegerField(DataField):
-    def serialize_data(self, data, model):
+    def format_data(self, data, model):
         try:
             return int(data)
         except (TypeError, ValueError):
             return None
 
 class FloatField(DataField):
-    def serialize_data(self, data, model):
+    def format_data(self, data, model):
         try:
             return float(data)
         except (TypeError, ValueError):
@@ -67,7 +70,7 @@ class InlineModelField(DataField, ModelField):
         super(InlineModelField, self).__init__(predicate, *args, **kwargs)
         self.model_class = model_class
 
-    def serialize_data(self, node, model):
+    def format_data(self, node, model):
         model_class = self.get_model_class(node, model)
 
         if model_class._type:
@@ -77,7 +80,7 @@ class InlineModelField(DataField, ModelField):
                 except StopIteration:
                     return None
 
-        return model_class(node, model.graph).metadata
+        return model_class(node, model.graph).data
 
 class ListField(Field):
     def __init__(self, predicate, fieldtype, *argz, **kwargs):
@@ -86,11 +89,11 @@ class ListField(Field):
         self.field_args = argz
         self.field_kwargs = kwargs
 
-    def serialized(self, model):
+    def extract(self, model):
         res = []
         for obj in model.get_objects(self.predicate):
             field = self.field_type(self.predicate, *self.field_args, **self.field_kwargs)
-            data = field.serialize_data(obj, model)
+            data = field.format_data(obj, model)
             data = field.modify_and_filter(data)
             if data is not None:
                 res.append(data)
@@ -101,12 +104,12 @@ class ModelSearchField(Field, ModelField):
         self.node_type = node_type
         self.model_class = model_class
 
-    def serialized(self, model):
+    def extract(self, model):
         res = []
         for triple in model.triples([None, model.rdfsyntax.type, self.node_type]):
             subject = triple[0]
             model_class = self.get_model_class(subject, model)
-            res.append(model_class(subject, model.graph).metadata)
+            res.append(model_class(subject, model.graph).data)
         return res                
 
     @property
@@ -131,7 +134,7 @@ class Model(object):
         self.subject = subject
         self.format = format
         self.parsed_files = set()
-        self.serialize()
+        self.extract_data()
 
     def triples(self, *args, **kwargs):
         return self.graph.triples(*args, **kwargs)
@@ -155,14 +158,14 @@ class Model(object):
         for result in self.graph.triples([self.subject, predicate, None]):
             yield result[2]
 
-    def serialize(self):
-        md = {}
+    def extract_data(self):
+        data = {}
         for attr in dir(self.__class__):
             field = getattr(self.__class__, attr)
             if isinstance(field, TypeField):
                 self.__class__._type = field
             elif isinstance(field, Field):
-                md[attr] = field.serialized(self)
+                data[attr] = field.extract(self)
                 
-        self.metadata = md
+        self.data = data
 
