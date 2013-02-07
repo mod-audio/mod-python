@@ -17,7 +17,6 @@ class Foaf(model.Model):
     name = model.StringField(foaf.name)
     mbox = model.StringField(foaf.mbox)
     homepage = model.StringField(foaf.homepage)
-    
 
 class Bundle(model.Model):
     lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
