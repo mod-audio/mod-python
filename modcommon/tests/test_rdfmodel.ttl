@@ -1,0 +1,25 @@
+@prefix test:   <http://test/ns#> .
+@prefix foaf:   <http://person/ns#> .
+
+<http://mytest/string> a test:Item ;
+		       test:name "This is my name";
+		       test:intval 4;
+		       test:floatval 3.141592;
+		       test:person [
+		           foaf:name "John Smith";
+			   foaf:age 33;
+			   foaf:weight 75.7;
+			   ];
+		       test:intlist 3, 2;
+		       test:floatlist 3.1, 2.1;
+		       test:stringlist "One", "Two", "Three";
+		       test:mixedlist "One", 2, 3.141592;
+		       test:personlist [
+		           foaf:name "Person One";
+			   foaf:age 21;
+			   foaf:weight 71.1;
+		       ],[
+		           foaf:name "Person Two";
+			   foaf:age 22;
+			   foaf:weight 72.2;
+		       ].

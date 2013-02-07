@@ -5,11 +5,12 @@ class Plugin(model.Model):
     lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
     doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 
-    url = model.NameField()
+    url = model.IDField()
     name = model.StringField(doap.name)
-    maintainer = model.InlineModelField('Foaf', doap.maintainer)
-    developer = model.InlineModelField('Foaf', doap.developer)
+    maintainer = model.InlineModelField(doap.maintainer, 'Foaf')
+    developer = model.InlineModelField(doap.developer, 'Foaf')
     license = model.StringField(doap.license, lambda x: x.split('/')[-1])
+
 
 class Foaf(model.Model):
     foaf = rdflib.Namespace('http://xmlns.com/foaf/0.1/')
@@ -29,5 +30,5 @@ class Bundle(model.Model):
     @property
     def plugins(self):
         for triple in self.triples([None, self.rdfsyntax.type, self.lv2core.Plugin]):
-            yield Plugin(self.graph, triple[0])
+            yield Plugin(triple[0], self.graph)
 

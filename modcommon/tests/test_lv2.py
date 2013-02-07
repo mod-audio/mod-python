@@ -1,9 +1,9 @@
 # -*- coding: utf-8
 
 import unittest, os
-from modcommon.lv2 import PluginCollection
+#from modcommon.lv2 import PluginCollection
 
-class PluginCollectionTest(unittest.TestCase):
+class PluginCollectionTest(object):#unittest.TestCase):
 
     def setUp(self):
         self.invadapath = '/usr/lib/lv2/invada.lv2'
