@@ -17,16 +17,28 @@ class Plugin(model.Model):
     control_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlInputPort')
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlOutputPort')
 
-class AudioInputPort(model.Model):
+    def serialize(self):
+        super(Plugin, self).serialize()
+        m = self.metadata
+        m['ports'] = { 'audio': {}, 'control': {} }
+        m['ports']['audio']['input'] =    m.pop('audio_input_ports')
+        m['ports']['audio']['output'] =   m.pop('audio_output_ports')
+        m['ports']['control']['input'] =  m.pop('control_input_ports')
+        m['ports']['control']['output'] = m.pop('control_output_ports')
+
+class Port(model.Model):
+    symbol = model.StringField(lv2core.symbol)
+
+class AudioInputPort(Port):
     _type = model.TypeField(lv2core.AudioPort, lv2core.InputPort)
 
-class AudioOutputPort(model.Model):
+class AudioOutputPort(Port):
     _type = model.TypeField(lv2core.AudioPort, lv2core.OutputPort)
     
-class ControlInputPort(model.Model):
+class ControlInputPort(Port):
     _type = model.TypeField(lv2core.ControlPort, lv2core.InputPort)
 
-class ControlOutputPort(model.Model):
+class ControlOutputPort(Port):
     _type = model.TypeField(lv2core.ControlPort, lv2core.OutputPort)
     
 class Foaf(model.Model):
