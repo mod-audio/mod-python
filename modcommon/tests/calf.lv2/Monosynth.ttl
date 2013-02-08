@@ -1,0 +1,376 @@
+@prefix : <http://calf.sourceforge.net/plugins/Monosynth> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc: <http://dublincore.org/documents/dcmi-namespace/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix uiext: <http://lv2plug.in/ns/extensions/ui#> .
+@prefix lv2ev: <http://lv2plug.in/ns/ext/event#> .
+@prefix lv2midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix lv2ctx: <http://lv2plug.in/ns/dev/contexts#> .
+@prefix strport: <http://lv2plug.in/ns/dev/string-port#> .
+@prefix pg: <http://ll-plugins.nongnu.org/lv2/ext/portgroups#> .
+@prefix ue: <http://lv2plug.in/ns/extensions/units#> .
+@prefix epp: <http://lv2plug.in/ns/dev/extportinfo#> .
+@prefix kf: <http://foltman.com/ns/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix poly: <http://lv2plug.in/ns/dev/polymorphic-port#> .
+
+<http://calf.sourceforge.net/plugins/gui/gtk2-gui>
+    a uiext:GtkUI ;
+    uiext:binary <calflv2gui.so> ;
+    uiext:requiredFeature uiext:makeResident .
+    
+<http://calf.sourceforge.net/plugins/Monosynth> a lv2:Plugin ;
+    a lv2:InstrumentPlugin ;
+    doap:name "Calf Monosynth" ;
+    doap:maintainer [ foaf:name "Krzysztof Foltman" ; ] ;
+    uiext:ui <http://calf.sourceforge.net/plugins/gui/gtk2-gui> ;
+    lv2:optionalFeature <http://lv2plug.in/ns/ext/instance-access> ;
+    lv2:optionalFeature <http://lv2plug.in/ns/ext/data-access> ;
+    doap:license <http://usefulinc.com/doap/licenses/lgpl> ;
+    dc:replaces <ladspa:33920> ;
+    lv2:optionalFeature epp:supportsStrictBounds ;
+    lv2:optionalFeature lv2:hardRtCapable ;
+    lv2:requiredFeature <http://lv2plug.in/ns/ext/event> ;
+    lv2:requiredFeature <http://lv2plug.in/ns/ext/uri-map> ;
+    lv2:port [
+        a lv2:OutputPort ;
+        a lv2:AudioPort ;
+        lv2:index 0 ;
+        lv2:symbol "out_l" ;
+        lv2:name "out_l" ;
+        pg:membership [ pg:group <#stereoOut>; pg:role pg:leftChannel ] ;
+    ] , [
+        a lv2:OutputPort ;
+        a lv2:AudioPort ;
+        lv2:index 1 ;
+        lv2:symbol "out_r" ;
+        lv2:name "out_r" ;
+        pg:membership [ pg:group <#stereoOut>; pg:role pg:rightChannel ] ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "o1_wave" ;
+        lv2:name "Osc1 Wave" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty lv2:integer ;
+        lv2:scalePoint [ rdfs:label "Sawtooth"; rdf:value 0 ] ;
+        lv2:scalePoint [ rdfs:label "Square"; rdf:value 1 ] ;
+        lv2:scalePoint [ rdfs:label "Pulse"; rdf:value 2 ] ;
+        lv2:scalePoint [ rdfs:label "Sine"; rdf:value 3 ] ;
+        lv2:scalePoint [ rdfs:label "Triangle"; rdf:value 4 ] ;
+        lv2:scalePoint [ rdfs:label "Varistep"; rdf:value 5 ] ;
+        lv2:scalePoint [ rdfs:label "Skewed Saw"; rdf:value 6 ] ;
+        lv2:scalePoint [ rdfs:label "Skewed Square"; rdf:value 7 ] ;
+        lv2:scalePoint [ rdfs:label "Smooth Brass"; rdf:value 8 ] ;
+        lv2:scalePoint [ rdfs:label "Bass"; rdf:value 9 ] ;
+        lv2:scalePoint [ rdfs:label "Dark FM"; rdf:value 10 ] ;
+        lv2:scalePoint [ rdfs:label "Multiwave"; rdf:value 11 ] ;
+        lv2:scalePoint [ rdfs:label "Bell FM"; rdf:value 12 ] ;
+        lv2:scalePoint [ rdfs:label "Dark Pad"; rdf:value 13 ] ;
+        lv2:scalePoint [ rdfs:label "DCO Saw"; rdf:value 14 ] ;
+        lv2:scalePoint [ rdfs:label "DCO Maze"; rdf:value 15 ] ;
+        lv2:default 0.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 15.0000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 3 ;
+        lv2:symbol "o2_wave" ;
+        lv2:name "Osc2 Wave" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty lv2:integer ;
+        lv2:scalePoint [ rdfs:label "Sawtooth"; rdf:value 0 ] ;
+        lv2:scalePoint [ rdfs:label "Square"; rdf:value 1 ] ;
+        lv2:scalePoint [ rdfs:label "Pulse"; rdf:value 2 ] ;
+        lv2:scalePoint [ rdfs:label "Sine"; rdf:value 3 ] ;
+        lv2:scalePoint [ rdfs:label "Triangle"; rdf:value 4 ] ;
+        lv2:scalePoint [ rdfs:label "Varistep"; rdf:value 5 ] ;
+        lv2:scalePoint [ rdfs:label "Skewed Saw"; rdf:value 6 ] ;
+        lv2:scalePoint [ rdfs:label "Skewed Square"; rdf:value 7 ] ;
+        lv2:scalePoint [ rdfs:label "Smooth Brass"; rdf:value 8 ] ;
+        lv2:scalePoint [ rdfs:label "Bass"; rdf:value 9 ] ;
+        lv2:scalePoint [ rdfs:label "Dark FM"; rdf:value 10 ] ;
+        lv2:scalePoint [ rdfs:label "Multiwave"; rdf:value 11 ] ;
+        lv2:scalePoint [ rdfs:label "Bell FM"; rdf:value 12 ] ;
+        lv2:scalePoint [ rdfs:label "Dark Pad"; rdf:value 13 ] ;
+        lv2:scalePoint [ rdfs:label "DCO Saw"; rdf:value 14 ] ;
+        lv2:scalePoint [ rdfs:label "DCO Maze"; rdf:value 15 ] ;
+        lv2:default 1.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 15.0000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "o12_detune" ;
+        lv2:name "O1<>2 Detune" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 10.0000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 100.000 ;
+        ue:unit ue:cent ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 5 ;
+        lv2:symbol "o2_xpose" ;
+        lv2:name "Osc 2 transpose" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty lv2:integer ;
+        lv2:default 12.0000 ;
+        lv2:minimum -24.0000 ;
+        lv2:maximum 24.0000 ;
+        ue:unit ue:semitone12TET ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "phase_mode" ;
+        lv2:name "Phase mode" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty lv2:integer ;
+        lv2:scalePoint [ rdfs:label "0 : 0"; rdf:value 0 ] ;
+        lv2:scalePoint [ rdfs:label "0 : 180"; rdf:value 1 ] ;
+        lv2:scalePoint [ rdfs:label "0 : 90"; rdf:value 2 ] ;
+        lv2:scalePoint [ rdfs:label "90 : 90"; rdf:value 3 ] ;
+        lv2:scalePoint [ rdfs:label "90 : 270"; rdf:value 4 ] ;
+        lv2:scalePoint [ rdfs:label "Random"; rdf:value 5 ] ;
+        lv2:default 0.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 5.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 7 ;
+        lv2:symbol "o12_mix" ;
+        lv2:name "O1<>2 Mix" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 0.500000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 1.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 8 ;
+        lv2:symbol "filter" ;
+        lv2:name "Filter" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty lv2:integer ;
+        lv2:scalePoint [ rdfs:label "12dB/oct Lowpass"; rdf:value 0 ] ;
+        lv2:scalePoint [ rdfs:label "24dB/oct Lowpass"; rdf:value 1 ] ;
+        lv2:scalePoint [ rdfs:label "2x12dB/oct Lowpass"; rdf:value 2 ] ;
+        lv2:scalePoint [ rdfs:label "12dB/oct Highpass"; rdf:value 3 ] ;
+        lv2:scalePoint [ rdfs:label "Lowpass+Notch"; rdf:value 4 ] ;
+        lv2:scalePoint [ rdfs:label "Highpass+Notch"; rdf:value 5 ] ;
+        lv2:scalePoint [ rdfs:label "6dB/oct Bandpass"; rdf:value 6 ] ;
+        lv2:scalePoint [ rdfs:label "2x6dB/oct Bandpass"; rdf:value 7 ] ;
+        lv2:default 1.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 7.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 9 ;
+        lv2:symbol "cutoff" ;
+        lv2:name "Cutoff" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty epp:logarithmic ;
+        lv2:default 33.0000 ;
+        lv2:minimum 10.0000 ;
+        lv2:maximum 16000.0 ;
+        ue:unit ue:hz ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 10 ;
+        lv2:symbol "res" ;
+        lv2:name "Resonance" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 2.00000 ;
+        lv2:minimum 0.700000 ;
+        lv2:maximum 8.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 11 ;
+        lv2:symbol "filter_sep" ;
+        lv2:name "Separation" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 0.00000 ;
+        lv2:minimum -2400.00 ;
+        lv2:maximum 2400.00 ;
+        ue:unit ue:cent ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 12 ;
+        lv2:symbol "env2cutoff" ;
+        lv2:name "Env->Cutoff" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 8000.00 ;
+        lv2:minimum -10800.0 ;
+        lv2:maximum 10800.0 ;
+        ue:unit ue:cent ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 13 ;
+        lv2:symbol "env2res" ;
+        lv2:name "Env->Res" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 1.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 1.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 14 ;
+        lv2:symbol "env2amp" ;
+        lv2:name "Env->Amp" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 1.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 1.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 15 ;
+        lv2:symbol "adsr_a" ;
+        lv2:name "Attack" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty epp:logarithmic ;
+        lv2:default 1.00000 ;
+        lv2:minimum 1.00000 ;
+        lv2:maximum 20000.0 ;
+        ue:unit ue:ms ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 16 ;
+        lv2:symbol "adsr_d" ;
+        lv2:name "Decay" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty epp:logarithmic ;
+        lv2:default 350.000 ;
+        lv2:minimum 10.0000 ;
+        lv2:maximum 20000.0 ;
+        ue:unit ue:ms ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 17 ;
+        lv2:symbol "adsr_s" ;
+        lv2:name "Sustain" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 0.500000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 1.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 18 ;
+        lv2:symbol "adsr_r" ;
+        lv2:name "Release" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty epp:logarithmic ;
+        lv2:default 50.0000 ;
+        lv2:minimum 10.0000 ;
+        lv2:maximum 20000.0 ;
+        ue:unit ue:ms ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 19 ;
+        lv2:symbol "key_follow" ;
+        lv2:name "Key Follow" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 0.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 2.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 20 ;
+        lv2:symbol "legato" ;
+        lv2:name "Legato Mode" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty lv2:integer ;
+        lv2:scalePoint [ rdfs:label "Retrig"; rdf:value 0 ] ;
+        lv2:scalePoint [ rdfs:label "Legato"; rdf:value 1 ] ;
+        lv2:scalePoint [ rdfs:label "Fng Retrig"; rdf:value 2 ] ;
+        lv2:scalePoint [ rdfs:label "Fng Legato"; rdf:value 3 ] ;
+        lv2:default 0.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 3.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 21 ;
+        lv2:symbol "portamento" ;
+        lv2:name "Portamento" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:portProperty epp:logarithmic ;
+        lv2:default 1.00000 ;
+        lv2:minimum 1.00000 ;
+        lv2:maximum 2000.00 ;
+        ue:unit ue:ms ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 22 ;
+        lv2:symbol "vel2filter" ;
+        lv2:name "Vel->Filter" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 0.500000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 1.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 23 ;
+        lv2:symbol "vel2amp" ;
+        lv2:name "Vel->Amp" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 0.00000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 1.00000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 24 ;
+        lv2:symbol "master" ;
+        lv2:name "Volume" ;
+        lv2:portProperty epp:outputGain ;
+        lv2:default 0.500000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 1.00000 ;
+        epp:rangeSteps 100.000 ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2:ControlPort ;
+        lv2:index 25 ;
+        lv2:symbol "pbend_range" ;
+        lv2:name "PBend Range" ;
+        lv2:portProperty epp:hasStrictBounds ;
+        lv2:default 200.000 ;
+        lv2:minimum 0.00000 ;
+        lv2:maximum 2400.00 ;
+        epp:rangeSteps 25.0000 ;
+        ue:unit ue:cent ;
+    ] , [
+        a lv2:InputPort ;
+        a lv2ev:EventPort ;
+        lv2:index 26 ;
+        lv2:symbol "event_in" ;
+        lv2:name "Event" ;
+        lv2:portProperty lv2:connectionOptional ;
+        lv2ev:supportsEvent lv2midi:MidiEvent ;
+        lv2ev:supportsTimestamp <lv2ev:TimeStamp> ;
+    ]
+.
+
+

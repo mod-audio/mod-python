@@ -2,6 +2,9 @@
 
 import rdflib, os, json, sys
 
+rdfschema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
+rdfsyntax = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+
 class TypeField(object):
     def __init__(self, *node_types):
         self.node_types = node_types
@@ -18,9 +21,11 @@ class DataField(Field):
         self.predicate = predicate
         self.modifier = modifier
         self.filter = filter
+        self.object = None
 
     def extract(self, model):
-        for data in model.get_objects(self.predicate):
+        for triple in model.triples([model.subject, self.predicate, self.object]):
+            data = triple[2]
             data = self.format_data(data, model)
             data = self.modify_and_filter(data)
             if data is not None:
@@ -43,6 +48,7 @@ class StringField(DataField):
         return unicode(data)
 
 class IntegerField(DataField):
+
     def format_data(self, data, model):
         try:
             return int(data)
@@ -55,6 +61,18 @@ class FloatField(DataField):
             return float(data)
         except (TypeError, ValueError):
             return None
+
+class BooleanPropertyField(DataField):
+    def __init__(self, predicate, prop, **kwargs):
+        super(BooleanPropertyField, self).__init__(predicate, **kwargs)
+        self.object = prop
+
+    def extract(self, model):
+        data = super(BooleanPropertyField, self).extract(model)
+        return bool(data)
+
+    def format_data(self, data, model):
+        return data is not None
 
 #mixin
 class ModelField(object):
@@ -76,7 +94,7 @@ class InlineModelField(DataField, ModelField):
         if model_class._type:
             for necessary_type in model_class._type.node_types:
                 try:
-                    node_type = model.triples([node, model.rdfsyntax.type, necessary_type]).next()[2]
+                    node_type = model.triples([node, rdfsyntax.type, necessary_type]).next()[2]
                 except StopIteration:
                     return None
 
@@ -85,6 +103,10 @@ class InlineModelField(DataField, ModelField):
 class ListField(Field):
     def __init__(self, predicate, fieldtype, *argz, **kwargs):
         self.predicate = predicate
+        try:
+            self.order = kwargs.pop('order')
+        except:
+            self.order = None
         self.field_type = fieldtype
         self.field_args = argz
         self.field_kwargs = kwargs
@@ -97,6 +119,8 @@ class ListField(Field):
             data = field.modify_and_filter(data)
             if data is not None:
                 res.append(data)
+        if self.order:
+            return sorted(res, key=self.order)
         return res                
 
 class ModelSearchField(Field, ModelField):
@@ -105,24 +129,21 @@ class ModelSearchField(Field, ModelField):
         self.model_class = model_class
 
     def extract(self, model):
-        res = []
-        for triple in model.triples([None, model.rdfsyntax.type, self.node_type]):
+        res = {}
+        for triple in model.triples([None, rdfsyntax.type, self.node_type]):
             subject = triple[0]
             model_class = self.get_model_class(subject, model)
-            res.append(model_class(subject, model.graph).data)
+            res[unicode(subject)] = model_class(subject, model.graph).data
         return res                
 
     @property
     def plugins(self):
-        for triple in self.triples([None, self.rdfsyntax.type, self.lv2core.Plugin]):
+        for triple in self.triples([None, rdfsyntax.type, self.lv2core.Plugin]):
             yield Plugin(triple[0], self.graph)
 
 
 
 class Model(object):
-
-    rdfschema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
-    rdfsyntax = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
 
     _type = None
 
@@ -134,7 +155,14 @@ class Model(object):
         self.subject = subject
         self.format = format
         self.parsed_files = set()
+        self._data = None
+
+    @property
+    def data(self):
+        if self._data:
+            return self._data
         self.extract_data()
+        return self._data
 
     def triples(self, *args, **kwargs):
         return self.graph.triples(*args, **kwargs)
@@ -150,9 +178,10 @@ class Model(object):
         self.parsed_files.add(path)
         graph = rdflib.ConjunctiveGraph()
         graph.parse(path, format=self.format)
-        for extension in graph.triples([None, self.rdfschema.seeAlso, None]):
+        for extension in graph.triples([None, rdfschema.seeAlso, None]):
             self.parse(extension[2])
         self.graph += graph
+        self._data = None
         
     def get_objects(self, predicate):
         for result in self.graph.triples([self.subject, predicate, None]):
@@ -167,5 +196,5 @@ class Model(object):
             elif isinstance(field, Field):
                 data[attr] = field.extract(self)
                 
-        self.data = data
+        self._data = data
 

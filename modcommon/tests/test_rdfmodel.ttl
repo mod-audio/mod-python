@@ -1,16 +1,16 @@
 @prefix test:   <http://test/ns#> .
 @prefix foaf:   <http://person/ns#> .
 
+<http://test/ns#john> a foaf:Person;
+                      foaf:name "John Smith";
+                      foaf:age 33;
+		      foaf:weight 75.7.
+
 <http://mytest/item> a test:Item ;
 		       test:name "This is my name";
 		       test:intval 4;
 		       test:floatval 3.141592;
-		       test:person [
-		           a foaf:Person;
-		           foaf:name "John Smith";
-			   foaf:age 33;
-			   foaf:weight 75.7;
-			   ];
+		       test:person test:john;
 		       test:intlist 3, 2;
 		       test:floatlist 3.1, 2.1;
 		       test:stringlist "One", "Two", "Three";
@@ -42,6 +42,13 @@
                            a foaf:Person;
 			   foaf:name "Just John";
                        ].
+
+<http://mytest/item_a> a test:Item ;
+		       test:hasProperty test:propA.
+
+<http://mytest/item_b> a test:Item ;
+		       test:hasProperty test:propA;
+		       test:hasProperty test:propB.
 
 <http://mytest/otherstuff> a test:OtherStuff ;
                     test:name "This is one stuff".

@@ -1,0 +1,20 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix kf: <http://foltman.com/ns/> .
+
+kf:BooleanPlugin a rdfs:Class ; rdfs:label "Boolean-oriented" ; rdfs:subClassOf lv2:UtilityPlugin ; rdfs:comment """Modules heavily inspired by digital electronics (gates, flip-flops etc.)""" .
+kf:MathOperatorPlugin a rdfs:Class ; rdfs:label "Math operators" ; rdfs:subClassOf lv2:UtilityPlugin ; rdfs:comment """Mathematical operators and utility functions""" .
+kf:IntegerPlugin a rdfs:Class ; rdfs:label "Integer-oriented" ; rdfs:subClassOf lv2:UtilityPlugin ; rdfs:comment """Operations using integer values (counters, multiplexers etc.)""" .
+kf:MIDIPlugin a rdfs:Class ; rdfs:label "MIDI" ; rdfs:subClassOf lv2:UtilityPlugin ; rdfs:comment """Operations on MIDI streams (filters, transposers, mappers etc.)""" .
+<http://calf.sourceforge.net/plugins/Filter> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Filter.ttl> .
+<http://calf.sourceforge.net/plugins/Filterclavier> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Filterclavier.ttl> .
+<http://calf.sourceforge.net/plugins/Flanger> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Flanger.ttl> .
+<http://calf.sourceforge.net/plugins/Reverb> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Reverb.ttl> .
+<http://calf.sourceforge.net/plugins/Monosynth> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Monosynth.ttl> .
+<http://calf.sourceforge.net/plugins/VintageDelay> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <VintageDelay.ttl> .
+<http://calf.sourceforge.net/plugins/Organ> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Organ.ttl> .
+<http://calf.sourceforge.net/plugins/RotarySpeaker> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <RotarySpeaker.ttl> .
+<http://calf.sourceforge.net/plugins/Phaser> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Phaser.ttl> .
+<http://calf.sourceforge.net/plugins/MultiChorus> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <MultiChorus.ttl> .
+<http://calf.sourceforge.net/plugins/Compressor> a lv2:Plugin ; lv2:binary <calf.so> ; rdfs:seeAlso <Compressor.ttl> .
+

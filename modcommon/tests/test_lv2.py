@@ -1,31 +1,26 @@
 # -*- coding: utf-8
 
 import unittest, os
-#from modcommon.lv2 import PluginCollection
+from nose.plugins.attrib import attr
+from modcommon.lv2 import Bundle
 
-class PluginCollectionTest(object):#unittest.TestCase):
+
+ROOT = os.path.dirname(os.path.realpath(__file__))
+
+class BundleTest(unittest.TestCase):
 
     def setUp(self):
-        self.invadapath = '/usr/lib/lv2/invada.lv2'
-        try:
-            assert os.path.exists(self.invadapath)
-        except:
-            self.fail("Você deve instalar o pacote invada-studio-plugins-lv2")
+        self.invadapath = os.path.join(ROOT, 'invada.lv2')
+        self.calfpath =  os.path.join(ROOT, 'calf.lv2')
 
-        self.calfpath = '/usr/lib/lv2/calf.lv2'
-        try:
-            assert os.path.exists(self.calfpath)
-        except:
-            self.fail("Você deve instalar o pacote calf-plugins")
-
+    @attr(slow=1)
     def test_plugins_are_properly_organized(self):
-        collection = PluginCollection(self.invadapath)
+        bundle = Bundle(self.invadapath)
 
-        self.assertEquals(len(collection.plugins.keys()), 18)
+        self.assertEquals(len(bundle.data['plugins'].keys()), 18)
 
-        plugin = collection.plugins['http://invadarecords.com/plugins/lv2/compressor/stereo']
+        m = bundle.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
 
-        m = plugin.metadata
         self.assertEquals(m['url'], 'http://invadarecords.com/plugins/lv2/compressor/stereo')
         self.assertEquals(m['name'], 'Invada Compressor (stereo)')
         self.assertEquals(m['maintainer']['name'], 'Invada')
@@ -75,24 +70,24 @@ class PluginCollectionTest(object):#unittest.TestCase):
         self.assertEquals(cs[6]['unit']['symbol'], 'dB')
         self.assertEquals(cs[6]['logarithmic'], False)
 
+    @attr(slow=1)
     def test_logarithm_port_is_properly_parsed(self):
-        collection = PluginCollection(self.invadapath)
+        bundle = Bundle(self.invadapath)
 
-        self.assertEquals(len(collection.plugins.keys()), 18)
+        self.assertEquals(len(bundle.data['plugins'].keys()), 18)
 
-        plugin = collection.plugins['http://invadarecords.com/plugins/lv2/delay/mono']
+        m = bundle.data['plugins']['http://invadarecords.com/plugins/lv2/delay/mono']
 
-        m = plugin.metadata
         lfo = m['ports']['control']['input'][4]
         assert lfo['name'] == 'LFO' # just to make sure we got right port
         self.assertTrue(lfo['logarithmic'])
 
+    @attr(slow=1)
     def test_integer_port_is_properly_parsed(self):
-        collection = PluginCollection(self.calfpath)
+        bundle = Bundle(self.calfpath)
 
-        plugin = collection.plugins['http://calf.sourceforge.net/plugins/Reverb']
+        m = bundle.data['plugins']['http://calf.sourceforge.net/plugins/Reverb']
 
-        m = plugin.metadata
         port = m['ports']['control']['input'][2]
         assert port['name'] == 'Room size' # just to make sure we got right port
         self.assertTrue(port['integer'])
