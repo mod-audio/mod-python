@@ -4,7 +4,9 @@ from . import rdfmodel as model
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
+
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
+wunits = rdflib.Namespace('http://lv2plug.in/ns/extension/units#') # wrong units, let's abandon this soon
 
 class Bundle(model.Model):
     
@@ -19,12 +21,15 @@ class Plugin(model.Model):
 
     url = model.IDField()
     name = model.StringField(doap.name)
+    binary = model.FileField(lv2core.binary)
     maintainer = model.InlineModelField(doap.maintainer, 'Foaf')
     developer = model.InlineModelField(doap.developer, 'Foaf')
     license = model.StringField(doap.license, lambda x: x.split('/')[-1])
 
-    order = lambda x: x['index']
+    microVersion = model.IntegerField(lv2core.microVersion)
+    minorVersion = model.IntegerField(lv2core.minorVersion)
 
+    order = lambda x: x['index']
     audio_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'AudioInputPort', order=order)
     audio_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'AudioOutputPort', order=order)
     control_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlInputPort', order=order)
@@ -57,22 +62,28 @@ class ControlInputPort(Port):
     minimum = model.FloatField(lv2core.minimum)
     maximum = model.FloatField(lv2core.maximum)
 
-    unit = model.InlineModelField(units.unit, 'Unit')
+    unit = model.InlineModelField((units.unit, wunits.unit), 'Unit')
 
     toggled = model.BooleanPropertyField(lv2core.portProperty, lv2core.toggled)
     enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.enumeration)
     logarithmic = model.BooleanPropertyField(lv2core.portProperty, epp.logarithmic)
     integer = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
+    enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
+    scalePoints = model.ListField(lv2core.scalePoint, model.InlineModelField, 'ScalePoint', order=lambda x:x['value'])
 
 class ControlOutputPort(Port):
     _type = model.TypeField(lv2core.ControlPort, lv2core.OutputPort)
 
 class Unit(model.Model):
-    _type = model.TypeField(units.Unit)
+    _type = model.TypeField((units.Unit, wunits.Unit)) #this needs to be an OR, but by default is AND
     
     label = model.StringField(model.rdfschema.label)
-    render = model.StringField(units.render)
-    symbol = model.StringField(units.symbol)
+    render = model.StringField((units.render, wunits.render))
+    symbol = model.StringField((units.symbol, wunits.symbol))
+
+class ScalePoint(model.Model):
+    label = model.StringField(model.rdfschema.label)
+    value = model.FloatField(model.rdfsyntax.value)
 
 class Foaf(model.Model):
     foaf = rdflib.Namespace('http://xmlns.com/foaf/0.1/')

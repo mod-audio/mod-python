@@ -1,4 +1,5 @@
 @prefix test:   <http://test/ns#> .
+@prefix another: <http://test/another/ns#> .
 @prefix foaf:   <http://person/ns#> .
 
 <http://test/ns#john> a foaf:Person;
@@ -55,3 +56,7 @@
 
 <http://mytest/anotherstuff> a test:OtherStuff ;
                      test:name "This is another stuff".
+
+<http://mytest/bad_implementation> a test:DoesNotMatter;
+                                   test:name "My Name";
+				   another:value 17.

@@ -2,6 +2,7 @@ import unittest, os, rdflib
 from modcommon import rdfmodel as model
 
 ns = rdflib.Namespace('http://test/ns#')
+otherns = rdflib.Namespace('http://test/another/ns#')
 
 class TestModel(model.Model):
 
@@ -189,3 +190,21 @@ class TestSearchField(BaseTest):
                                                   'http://mytest/anotherstuff': {'name': 'This is another stuff'},
                                                   }
                                        })
+
+class AmbiguousModel(model.Model):
+    name = model.StringField([ns.name, otherns.name])
+    value = model.IntegerField((ns.value, otherns.value))
+
+class AmbiguousTest(BaseTest):
+    def __init__(self, *args, **kwargs):
+        super(BaseTest, self).__init__(*args, **kwargs)
+        item = AmbiguousModel(rdflib.term.URIRef('http://mytest/bad_implementation'))
+        ttl = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test_rdfmodel.ttl')
+        item.parse(ttl)
+        self.data = item.data
+
+    def test_a_list_of_possible_predicates_can_be_specified(self):
+        self.assertEquals(self.data['name'], "My Name")
+        self.assertEquals(self.data['value'], 17)
+
+# TODO test list order and filefield

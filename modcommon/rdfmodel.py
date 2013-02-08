@@ -136,12 +136,21 @@ class ModelSearchField(Field, ModelField):
             res[unicode(subject)] = model_class(subject, model.graph).data
         return res                
 
-    @property
-    def plugins(self):
-        for triple in self.triples([None, rdfsyntax.type, self.lv2core.Plugin]):
-            yield Plugin(triple[0], self.graph)
+class FileNotFound(Exception):
+    pass
 
-
+class FileField(StringField):
+    def extract(self, model):
+        data = super(FileField, self).extract(model)
+        if data is None:
+            return
+        try:
+            assert data.startswith('file:///')
+            data = data[len('file://'):]
+            assert os.path.exists(data)
+        except AssertionError:
+            raise FileNotFound("%s not found" % data)
+        return data
 
 class Model(object):
 
@@ -164,8 +173,19 @@ class Model(object):
         self.extract_data()
         return self._data
 
-    def triples(self, *args, **kwargs):
-        return self.graph.triples(*args, **kwargs)
+    def _list(self, item):
+        if isinstance(item, list) or isinstance(item, tuple):
+            return item
+        else:
+            return [item]
+
+    def triples(self, triple):
+        subject, predicate, obj = triple
+        for subject in self._list(subject):
+            for predicate in self._list(predicate):
+                for obj in self._list(obj):
+                    for triple in self.graph.triples([subject, predicate, obj]):
+                        yield triple
 
     def parse(self, path):
         if not path.startswith('file://'):
@@ -184,7 +204,7 @@ class Model(object):
         self._data = None
         
     def get_objects(self, predicate):
-        for result in self.graph.triples([self.subject, predicate, None]):
+        for result in self.triples([self.subject, predicate, None]):
             yield result[2]
 
     def extract_data(self):

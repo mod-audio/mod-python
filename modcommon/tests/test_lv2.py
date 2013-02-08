@@ -7,15 +7,20 @@ from modcommon.lv2 import Bundle
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
+invada = Bundle(os.path.join(ROOT, 'invada.lv2'))
+calf = Bundle(os.path.join(ROOT, 'calf.lv2'))
+
 class BundleTest(unittest.TestCase):
 
-    def setUp(self):
-        self.invadapath = os.path.join(ROOT, 'invada.lv2')
-        self.calfpath =  os.path.join(ROOT, 'calf.lv2')
+    @attr(slow=1)
+    def test_binary_path(self):
+        inv_binary = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']['binary']
+        self.assertTrue(inv_binary.endswith('inv_compressor.so'))
+        self.assertTrue(os.path.exists(inv_binary))
 
     @attr(slow=1)
     def test_plugins_are_properly_organized(self):
-        bundle = Bundle(self.invadapath)
+        bundle = invada
 
         self.assertEquals(len(bundle.data['plugins'].keys()), 18)
 
@@ -72,7 +77,7 @@ class BundleTest(unittest.TestCase):
 
     @attr(slow=1)
     def test_logarithm_port_is_properly_parsed(self):
-        bundle = Bundle(self.invadapath)
+        bundle = invada
 
         self.assertEquals(len(bundle.data['plugins'].keys()), 18)
 
@@ -84,7 +89,7 @@ class BundleTest(unittest.TestCase):
 
     @attr(slow=1)
     def test_integer_port_is_properly_parsed(self):
-        bundle = Bundle(self.calfpath)
+        bundle = calf
 
         m = bundle.data['plugins']['http://calf.sourceforge.net/plugins/Reverb']
 
@@ -96,3 +101,15 @@ class BundleTest(unittest.TestCase):
         port = m['ports']['control']['input'][3]
         self.assertTrue(not port['integer'])
 
+    @attr(slow=1)
+    def test_scalepoints(self):
+        port = calf.data['plugins']['http://calf.sourceforge.net/plugins/Organ']['ports']['control']['input'][20]
+        self.assertEquals(len(port['scalePoints']), 36)
+        self.assertEquals(port['scalePoints'][0], {'label': u'Sin', 'value': 0.0})
+        self.assertEquals(port['scalePoints'][1], {'label': u'S0', 'value': 1.0})
+        self.assertEquals(port['scalePoints'][35], {'label': u'P:Chant', 'value': 35.0})
+
+    @attr(slow=1)
+    def test_units(self):
+        port = calf.data['plugins']['http://calf.sourceforge.net/plugins/Organ']['ports']['control']['input'][29]
+        self.assertEquals(port['unit']['symbol'], 'ct')
