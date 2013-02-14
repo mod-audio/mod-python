@@ -379,7 +379,7 @@ class PluginPackage(object):
         if path.endswith('/'):
             path = path[:-1]        
         package = path.split('/')[-1]
-        assert re.match('^[a-z0-9._-]+$', package)
+        assert re.match('^[A-Za-z0-9._-]+$', package)
         assert not package.startswith('__')
 
         package_id = ObjectId()
