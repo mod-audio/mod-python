@@ -279,7 +279,7 @@ class Plugin(object):
             try:
                 typ = obj.datatype.encode().split('#')[-1]
             except:
-                return obj.encode()
+                return obj.encode('utf-8')
             if typ == 'decimal':
                 return float(Decimal(obj.encode()))
             if typ == 'integer':
