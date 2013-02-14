@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, json
+import os, json, shutil
 from whoosh.fields import Schema, ID, TEXT, NGRAMWORDS, NUMERIC, STORED
 from whoosh.index import create_in, open_dir
 from whoosh.query import And, Or, Every, Term
@@ -17,13 +17,19 @@ class Index(object):
     def schema(self):
         raise NotImplemented
 
-    def __init__(self, index_path):
+    def __init__(self, index_path, data_source=None):
         self.basedir = index_path
+        self.data_source = data_source
         if not os.path.exists(self.basedir):
             os.mkdir(self.basedir)
-            self.index = create_in(self.basedir, self.schema)
+            #self.index = create_in(self.basedir, self.schema)
+            self.reindex()
         else:
-            self.index = open_dir(self.basedir)
+            try:
+                self.index = open_dir(self.basedir)
+            except:
+                self.reindex()
+
 
     def schemed_data(self, obj):
         data = {}
@@ -38,17 +44,39 @@ class Index(object):
                 data[key] = u''
         return data
 
+    def searcher(self):
+        try:
+            return self.index.searcher()
+        except Exception as e:
+            self.reindex()
+            self.index.searcher()
+
+    def reindex(self):
+        if self.data_source and os.path.exists(self.data_source):
+            shutil.rmtree(self.basedir)
+            os.mkdir(self.basedir)
+            self.index = create_in(self.basedir, self.schema)
+            for filename in os.listdir(self.data_source):
+                filename = os.path.join(self.data_source, filename)
+                try:
+                    data = json.loads(open(filename).read())
+                    self.add(data)
+                except ValueError:
+                    # Not json valid
+                    # TODO log warning
+                    pass
+
     def find(self, **kwargs):
         terms = []
         for key, value in kwargs.items():
             terms.append(Term(key, value))
 
-        with self.index.searcher() as searcher:
+        with self.searcher() as searcher:
             for entry in searcher.search(And(terms), limit=None):
                 yield entry.fields()
 
     def every(self):
-        with self.index.searcher() as searcher:
+        with self.searcher() as searcher:
             for entry in searcher.search(Every(), limit=None):
                 yield entry.fields()
 
@@ -59,7 +87,7 @@ class Index(object):
             terms.append(parser.parse(unicode(query.pop('term')[0])))
         for key in query.keys():
             terms.append(Or([ Term(key, unicode(t)) for t in query.pop(key) ]))
-        with self.index.searcher() as searcher:
+        with self.searcher() as searcher:
             for entry in searcher.search(And(terms), limit=None):
                 yield entry.fields()
 
@@ -91,6 +119,10 @@ class Searcher(tornado.web.RequestHandler):
     @property
     def index_path(self):
         raise NotImplemented
+
+    @property
+    def index_data_source(self):
+        return None
 
     @property
     def index(self):
@@ -214,7 +246,7 @@ class EffectSearcher(Searcher):
 
     def favorites(self, limit=15):
         score = sorting.FieldFacet("score", reverse=True)
-        with self.index.index.searcher() as searcher:
+        with self.index.searcher() as searcher:
             for entry in searcher.search(Every(), limit=limit, sortedby=score):
                 effect = entry.fields()
                 if not effect.get('score'):
@@ -224,7 +256,7 @@ class EffectSearcher(Searcher):
     
     @property
     def index(self):
-        return EffectIndex(self.index_path)
+        return EffectIndex(self.index_path, self.index_data_source)
 
 class PedalboardIndex(Index):
 
@@ -238,7 +270,7 @@ class PedalboardIndex(Index):
 class PedalboardSearcher(Searcher):
     @property
     def index(self):
-        return PedalboardIndex(self.index_path)
+        return PedalboardIndex(self.index_path, self.index_data_source)
 
     
 
