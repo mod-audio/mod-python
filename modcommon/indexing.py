@@ -58,6 +58,8 @@ class Index(object):
             self.index = create_in(self.basedir, self.schema)
             for filename in os.listdir(self.data_source):
                 filename = os.path.join(self.data_source, filename)
+                if os.path.isdir(filename):
+                    continue
                 try:
                     data = json.loads(open(filename).read())
                     self.add(data)
