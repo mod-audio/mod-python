@@ -4,7 +4,6 @@ import unittest, os
 from nose.plugins.attrib import attr
 from modcommon.lv2 import Bundle
 
-
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
 invada = Bundle(os.path.join(ROOT, 'invada.lv2'))
