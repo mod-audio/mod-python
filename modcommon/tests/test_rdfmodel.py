@@ -7,8 +7,6 @@ foaf = rdflib.Namespace('http://person/ns#')
 
 class TestModel(model.Model):
 
-    _type = model.TypeField(ns.Item)
-
     name = model.StringField(ns.name)
     intval = model.IntegerField(ns.intval)
     floatval = model.FloatField(ns.floatval)
@@ -50,7 +48,12 @@ class TestModel(model.Model):
     property_a = model.BooleanPropertyField(ns.hasProperty, ns.propA)
     property_b = model.BooleanPropertyField(ns.hasProperty, ns.propB)
 
+    item_type = model.TypeField()
+    item_type_with_ns = model.TypeField(ns=ns)
+
 class Foaf(model.Model):
+    item_type = model.TypeField(ns=foaf)
+
     name = model.StringField(foaf.name)
     age = model.IntegerField(foaf.age)
     weight = model.FloatField(foaf.weight)
@@ -119,8 +122,10 @@ class TestInlineModel(BaseTest):
         personlist = self.data['personlist']
         personlist = sorted(personlist, key=lambda x: x['age'])
 
-        self.assertEquals(personlist, [{'age': 21, 'name': u'Person One', 'weight': 71.1},
-                                       {'age': 22, 'name': u'Person Two', 'weight': 72.2}])
+        self.assertEquals(personlist, [{ 'item_type': { 'Person': True }, 
+                                         'age': 21, 'name': u'Person One', 'weight': 71.1},
+                                       { 'item_type': { 'Person': True },
+                                         'age': 22, 'name': u'Person Two', 'weight': 72.2}])
 
 class TestModifier(BaseTest):
     def test_basic_modifier(self):
@@ -137,16 +142,29 @@ class TestFilter(BaseTest):
 
 class TestTypeFilter(BaseTest):
     def test_type_filter(self):
-        self.assertEquals(self.data['animallist'], [ { 'name': 'John',
+        self.assertEquals(self.data['animallist'], [ { 'item_type': { 'Person': True },
+                                                       'name': 'John',
                                                        'age': None,
                                                        'weight': None,
                                                        } ])
 
     def test_type_combination_filter(self):
-        self.assertEquals(self.data['smartpeople'], [ { 'name': 'Smart John',
+        self.assertEquals(self.data['smartpeople'], [ { 'item_type': { 'Person': True, 'Smart': True },
+                                                        'name': 'Smart John',
                                                         'age': None,
                                                         'weight': None,
                                                         } ])
+
+class TestType(BaseTest):
+    def test_type(self):
+        self.assertEquals(self.data['item_type'],
+                          { 'http://test/ns#Item': True })
+
+        self.assertEquals(self.data['item_type_with_ns'],
+                          { 'Item': True })
+
+        
+
 
 class PropertyTest(unittest.TestCase):
     def test_boolean_property(self, *args, **kwargs):

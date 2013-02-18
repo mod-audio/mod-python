@@ -5,12 +5,31 @@ import rdflib, os, json, sys
 rdfschema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
 rdfsyntax = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
 
-class TypeField(object):
-    def __init__(self, *node_types):
-        self.node_types = node_types
-
 class Field(object):
-    pass
+    def modify_and_filter(self, data):
+        if self.modifier:
+            data = self.modifier(data)
+        if self.filter and not self.filter(data):
+            return None
+        return data
+
+class TypeField(Field):
+    def __init__(self, ns=None, modifier=None):
+        self.ns = ns
+        self.modifier = modifier
+        self.filter = None
+
+    def extract(self, model):
+        data = {}
+        for triple in model.triples([model.subject, rdfsyntax.type, None]):
+            url = unicode(triple[2])
+            if self.ns:
+                if not url.startswith(self.ns):
+                    continue
+                url = url[len(self.ns):]
+            data[url] = True
+
+        return self.modify_and_filter(data)
 
 class IDField(Field):
     def extract(self, model):
@@ -33,13 +52,6 @@ class DataField(Field):
 
     def format_data(self, data, model):
         raise NotImplemented
-
-    def modify_and_filter(self, data):
-        if self.modifier:
-            data = self.modifier(data)
-        if self.filter and not self.filter(data):
-            return None
-        return data
 
 class StringField(DataField):
     def format_data(self, data, model):

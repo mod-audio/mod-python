@@ -7,6 +7,45 @@ epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
 
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
 
+category_index = {
+    'DelayPlugin': ['Delay'],
+    'DistortionPlugin': ['Distortion'],
+    'WaveshaperPlugin': ['Distortion', 'Waveshaper'],
+    'DynamicsPlugin': ['Dynamics'],
+    'AmplifierPlugin': ['Dynamics', 'Amplifier'],
+    'CompressorPlugin': ['Dynamics', 'Compressor'],
+    'ExpanderPlugin': ['Dynamics', 'Expander'],
+    'GatePlugin': ['Dynamics', 'Gate'],
+    'LimiterPlugin': ['Dynamics', 'Limiter'],
+    'FilterPlugin': ['Filter'],
+    'AllpassPlugin': ['Filter', 'Allpass'],
+    'BandpassPlugin': ['Filter', 'Bandpass'],
+    'CombPlugin': ['Filter', 'Comb'],
+    'EQPlugin': ['Filter', 'Equaliser'],
+    'MultiEQPlugin': ['Filter', 'Equaliser', 'Multiband'],
+    'ParaEQPlugin': ['Filter', 'Equaliser', 'Parametric'],
+    'HighpassPlugin': ['Filter', 'Highpass'],
+    'LowpassPlugin': ['Filter', 'Lowpass'],
+    'GeneratorPlugin': ['Generator'],
+    'ConstantPlugin': ['Generator', 'Constant'],
+    'InstrumentPlugin': ['Generator', 'Instrument'],
+    'OscillatorPlugin': ['Generator', 'Oscillator'],
+    'ModulatorPlugin': ['Modulator'],
+    'ChorusPlugin': ['Modulator', 'Chorus'],
+    'FlangerPlugin': ['Modulator', 'Flanger'],
+    'PhaserPlugin': ['Modulator', 'Phaser'],
+    'ReverbPlugin': ['Reverb'],
+    'SimulatorPlugin': ['Simulator'],
+    'SpatialPlugin': ['Spatial'],
+    'SpectralPlugin': ['Spectral'],
+    'PitchPlugin': ['Spectral', 'Pitch Shifter'],
+    'UtilityPlugin': ['Utility'],
+    'AnalyserPlugin': ['Utility', 'Analyser'],
+    'ConverterPlugin': ['Utility', 'Converter'],
+    'FunctionPlugin': ['Utility', 'Function'],
+    'MixerPlugin': ['Utility', 'Mixer'],
+    }
+
 class Bundle(model.Model):
     
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
@@ -40,7 +79,15 @@ class Plugin(model.Model):
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
 
-    #category = model.
+    def __category_modifier(data):
+        for category in data.keys():
+            try:
+                return category_index[category]
+            except KeyError:
+                pass
+        return []
+        
+    category = model.TypeField(ns=lv2core, modifier=__category_modifier)
 
     def extract_data(self):
         super(Plugin, self).extract_data()

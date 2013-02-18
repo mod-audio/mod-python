@@ -114,7 +114,7 @@ class BundleTest(unittest.TestCase):
         self.assertEquals(port['unit']['symbol'], 'ct')
 
     @attr(slow=1)
-    def _test_categories(self):
+    def test_categories(self):
         inv = invada.data['plugins']
         self.assertEquals(inv['http://invadarecords.com/plugins/lv2/compressor/stereo']['category'],
                           ['Dynamics', 'Compressor'])
