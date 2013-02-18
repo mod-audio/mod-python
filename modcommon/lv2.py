@@ -52,8 +52,18 @@ class Bundle(model.Model):
 
     def __init__(self, path):
         super(Bundle, self).__init__()
+        self.base_path = os.path.realpath(path)
         self.parse(os.path.join(path, 'manifest.ttl'))
         self.parse('units.ttl') 
+
+    def extra_files(self):
+        for topdir, dirnames, filenames in os.walk(self.base_path):
+            for filename in filenames:
+                yield os.path.realpath(os.path.join(topdir, filename))
+
+    def extract_data(self):
+        super(Bundle, self).extract_data()
+        self._data['_id'] = self.checksum()
 
 class Plugin(model.Model):
 

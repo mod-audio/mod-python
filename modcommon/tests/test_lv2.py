@@ -1,6 +1,6 @@
 # -*- coding: utf-8
 
-import unittest, os
+import unittest, os, random, shutil
 from nose.plugins.attrib import attr
 from modcommon.lv2 import Bundle
 
@@ -118,3 +118,23 @@ class BundleTest(unittest.TestCase):
         inv = invada.data['plugins']
         self.assertEquals(inv['http://invadarecords.com/plugins/lv2/compressor/stereo']['category'],
                           ['Dynamics', 'Compressor'])
+
+    @attr(slow=1)
+    def test_id(self):
+        inv_id = invada.data['_id']
+        clf_id = calf.data['_id']
+
+        self.assertTrue(not inv_id == clf_id)
+
+        new_inv = ''.join([ random.choice('asdf') for i in range(10) ])
+
+        try:
+            shutil.copytree(os.path.join(ROOT, 'invada.lv2'), new_inv)
+            self.assertEquals(Bundle(new_inv).data['_id'], inv_id)
+            open(os.path.join(new_inv, 'delme.now'), 'w')
+            self.assertNotEquals(Bundle(new_inv).data['_id'], inv_id)
+        finally:
+            shutil.rmtree(new_inv)
+            
+
+        
