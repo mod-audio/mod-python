@@ -85,14 +85,19 @@ class ModelField(object):
         
 class InlineModelField(DataField, ModelField):
     def __init__(self, predicate, model_class, *args, **kwargs):
+        self.valid_types = None
+        if 'accepts' in kwargs:
+            self.valid_types = kwargs.pop('accepts')
         super(InlineModelField, self).__init__(predicate, *args, **kwargs)
         self.model_class = model_class
+        if self.valid_types and not isinstance(self.valid_types, list):
+            self.valid_types = [self.valid_types]
 
     def format_data(self, node, model):
         model_class = self.get_model_class(node, model)
 
-        if model_class._type:
-            for necessary_type in model_class._type.node_types:
+        if self.valid_types:
+            for necessary_type in self.valid_types:
                 try:
                     node_type = model.triples([node, rdfsyntax.type, necessary_type]).next()[2]
                 except StopIteration:
@@ -211,9 +216,7 @@ class Model(object):
         data = {}
         for attr in dir(self.__class__):
             field = getattr(self.__class__, attr)
-            if isinstance(field, TypeField):
-                self.__class__._type = field
-            elif isinstance(field, Field):
+            if isinstance(field, Field):
                 data[attr] = field.extract(self)
                 
         self._data = data

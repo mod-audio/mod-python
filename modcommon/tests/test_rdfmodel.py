@@ -3,6 +3,7 @@ from modcommon import rdfmodel as model
 
 ns = rdflib.Namespace('http://test/ns#')
 otherns = rdflib.Namespace('http://test/another/ns#')
+foaf = rdflib.Namespace('http://person/ns#')
 
 class TestModel(model.Model):
 
@@ -40,26 +41,20 @@ class TestModel(model.Model):
 
     filterlist = model.ListField(ns.intlist, model.IntegerField, filter=lambda x: x>2.5)
 
-    animallist = model.ListField(ns.animallist, model.InlineModelField, 'Foaf')
+    animallist = model.ListField(ns.animallist, model.InlineModelField, 'Foaf',
+                                 accepts=[foaf.Person])
 
-    smartpeople = model.ListField(ns.smartpeople, model.InlineModelField, 'SmartPerson')
+    smartpeople = model.ListField(ns.smartpeople, model.InlineModelField, 'Foaf', 
+                                  accepts=[foaf.Person, foaf.Smart])
 
     property_a = model.BooleanPropertyField(ns.hasProperty, ns.propA)
     property_b = model.BooleanPropertyField(ns.hasProperty, ns.propB)
 
 class Foaf(model.Model):
-    foaf = rdflib.Namespace('http://person/ns#')
-
-    _type = model.TypeField(foaf.Person)
-
     name = model.StringField(foaf.name)
     age = model.IntegerField(foaf.age)
     weight = model.FloatField(foaf.weight)
 
-class SmartPerson(Foaf):
-    foaf = rdflib.Namespace('http://person/ns#')
-    _type = model.TypeField(foaf.Person, foaf.Smart)
-    
 class BaseTest(unittest.TestCase):
     
     def __init__(self, *args, **kwargs):
@@ -143,15 +138,15 @@ class TestFilter(BaseTest):
 class TestTypeFilter(BaseTest):
     def test_type_filter(self):
         self.assertEquals(self.data['animallist'], [ { 'name': 'John',
-                                                           'age': None,
-                                                           'weight': None,
-                                                           } ])
+                                                       'age': None,
+                                                       'weight': None,
+                                                       } ])
 
     def test_type_combination_filter(self):
         self.assertEquals(self.data['smartpeople'], [ { 'name': 'Smart John',
-                                                            'age': None,
-                                                            'weight': None,
-                                                            } ])
+                                                        'age': None,
+                                                        'weight': None,
+                                                        } ])
 
 class PropertyTest(unittest.TestCase):
     def test_boolean_property(self, *args, **kwargs):

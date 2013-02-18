@@ -6,7 +6,6 @@ doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
 
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
-wunits = rdflib.Namespace('http://lv2plug.in/ns/extension/units#') # wrong units, let's abandon this soon
 
 class Bundle(model.Model):
     
@@ -30,10 +29,18 @@ class Plugin(model.Model):
     minorVersion = model.IntegerField(lv2core.minorVersion)
 
     order = lambda x: x['index']
-    audio_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'AudioInputPort', order=order)
-    audio_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'AudioOutputPort', order=order)
-    control_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlInputPort', order=order)
-    control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlOutputPort', order=order)
+    audio_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
+                                        accepts=[lv2core.AudioPort, lv2core.InputPort])
+    audio_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
+                                         accepts=[lv2core.AudioPort, lv2core.OutputPort])
+
+    control_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlInputPort', order=order,
+                                          accepts=[lv2core.ControlPort, lv2core.InputPort])
+    
+    control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
+                                           accepts=[lv2core.ControlPort, lv2core.OutputPort])
+
+    #category = model.
 
     def extract_data(self):
         super(Plugin, self).extract_data()
@@ -49,20 +56,12 @@ class Port(model.Model):
     name = model.StringField(lv2core.name)
     index = model.IntegerField(lv2core['index'])
 
-class AudioInputPort(Port):
-    _type = model.TypeField(lv2core.AudioPort, lv2core.InputPort)
-
-class AudioOutputPort(Port):
-    _type = model.TypeField(lv2core.AudioPort, lv2core.OutputPort)
-    
 class ControlInputPort(Port):
-    _type = model.TypeField(lv2core.ControlPort, lv2core.InputPort)
-    
     default = model.FloatField(lv2core.default)
     minimum = model.FloatField(lv2core.minimum)
     maximum = model.FloatField(lv2core.maximum)
 
-    unit = model.InlineModelField((units.unit, wunits.unit), 'Unit')
+    unit = model.InlineModelField(units.unit, 'Unit')
 
     toggled = model.BooleanPropertyField(lv2core.portProperty, lv2core.toggled)
     enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.enumeration)
@@ -71,15 +70,10 @@ class ControlInputPort(Port):
     enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
     scalePoints = model.ListField(lv2core.scalePoint, model.InlineModelField, 'ScalePoint', order=lambda x:x['value'])
 
-class ControlOutputPort(Port):
-    _type = model.TypeField(lv2core.ControlPort, lv2core.OutputPort)
-
 class Unit(model.Model):
-    _type = model.TypeField((units.Unit, wunits.Unit)) #this needs to be an OR, but by default is AND
-    
     label = model.StringField(model.rdfschema.label)
-    render = model.StringField((units.render, wunits.render))
-    symbol = model.StringField((units.symbol, wunits.symbol))
+    render = model.StringField(units.render)
+    symbol = model.StringField(units.symbol)
 
 class ScalePoint(model.Model):
     label = model.StringField(model.rdfschema.label)

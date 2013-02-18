@@ -112,3 +112,9 @@ class BundleTest(unittest.TestCase):
     def test_units(self):
         port = calf.data['plugins']['http://calf.sourceforge.net/plugins/Organ']['ports']['control']['input'][29]
         self.assertEquals(port['unit']['symbol'], 'ct')
+
+    @attr(slow=1)
+    def _test_categories(self):
+        inv = invada.data['plugins']
+        self.assertEquals(inv['http://invadarecords.com/plugins/lv2/compressor/stereo']['category'],
+                          ['Dynamics', 'Compressor'])
