@@ -136,7 +136,8 @@ class BundleTest(unittest.TestCase):
         finally:
             shutil.rmtree(new_inv)
 
-    def _test_plugin_id(self):
+    @attr(slow=1)
+    def test_plugin_id(self):
         comp = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
         delay = invada.data['plugins']['http://invadarecords.com/plugins/lv2/delay/mono']
 

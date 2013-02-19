@@ -79,10 +79,33 @@ class Bundle(model.Model):
 
         return checksum.hexdigest()
     
+    def _hash(self, data):
+        return hashlib.md5(data).hexdigest()
 
+    def _data_fingerprint(self, data):
+        if isinstance(data, list):
+            chk = [ self._data_fingerprint(x) for x in data ]
+            chk = [ "list" ] + chk
+            return ':'.join(chk)
+        if isinstance(data, dict):
+            chk = []
+            for key in sorted(data.keys()):
+                chk.append(key)
+                chk.append(self._data_fingerprint(data[key]))
+            chk = [ "dict" ] + chk
+            return ':'.join(chk)
+        return ':'.join([ data.__class__.__name__.replace('__', ''),
+                          str(data) ])
+            
     def extract_data(self):
         super(Bundle, self).extract_data()
         self._data['_id'] = self.checksum()
+        for url in self._data['plugins']:
+            data = dict(self._data['plugins'][url].items())
+            data['binary'] = hashlib.md5(open(data['binary']).read()).hexdigest()
+            serialized = url + '|' + self._data_fingerprint(data)
+            self._data['plugins'][url]['_id'] = hashlib.md5(serialized).hexdigest()
+            
 
 class Plugin(model.Model):
 
