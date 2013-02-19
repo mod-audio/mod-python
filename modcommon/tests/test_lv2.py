@@ -120,7 +120,7 @@ class BundleTest(unittest.TestCase):
                           ['Dynamics', 'Compressor'])
 
     @attr(slow=1)
-    def test_id(self):
+    def test_bundle_id(self):
         inv_id = invada.data['_id']
         clf_id = calf.data['_id']
 
@@ -135,6 +135,24 @@ class BundleTest(unittest.TestCase):
             self.assertNotEquals(Bundle(new_inv).data['_id'], inv_id)
         finally:
             shutil.rmtree(new_inv)
+
+    def _test_plugin_id(self):
+        comp = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
+        delay = invada.data['plugins']['http://invadarecords.com/plugins/lv2/delay/mono']
+
+        self.assertTrue(not delay['_id'] == comp['_id'])
+
+        new_inv = ''.join([ random.choice('asdf') for i in range(10) ])
+
+        try:
+            shutil.copytree(os.path.join(ROOT, 'invada.lv2'), new_inv)
+            new_comp = Bundle(new_inv).data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
+            self.assertEquals(new_comp['_id'], comp['_id'])
+        finally:
+            shutil.rmtree(new_inv)
+
+        
+
             
 
         

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rdflib, os, json, sys, hashlib
+import rdflib, os, json, sys
 
 rdfschema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
 rdfsyntax = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
@@ -12,12 +12,6 @@ class Field(object):
         if self.filter and not self.filter(data):
             return None
         return data
-
-    def checksum(self):
-        # Most fields do not need this,
-        # since their values come from TTL file, which checksum
-        # is already calculated
-        return None
 
 class TypeField(Field):
     def __init__(self, ns=None, modifier=None):
@@ -161,8 +155,6 @@ class ModelSearchField(Field, ModelField):
 
 class FileNotFound(Exception):
     pass
-class ChecksumCalculationError(Exception):
-    pass
 
 class FileField(StringField):
     def extract(self, model):
@@ -178,15 +170,6 @@ class FileField(StringField):
             raise FileNotFound("%s not found" % data)
         self.file_path = data
         return data
-
-    def checksum(self):
-        try:
-            file_path = self.file_path
-        except AttributeError:
-            raise ChecksumCalculationError("Data has not been extracted")
-
-        return hashlib.md5(open(file_path).read()).hexdigest()
-        
 
 class Model(object):
 
@@ -237,7 +220,7 @@ class Model(object):
 
         assert os.path.exists(file_path)
         assert os.path.isfile(file_path)
-        self.parsed_files[file_path] = hashlib.md5(open(file_path).read()).hexdigest()
+        self.parsed_files[file_path] = True #hashlib.md5(open(file_path).read()).hexdigest()
 
         graph = rdflib.ConjunctiveGraph()
         graph.parse(path, format=self.format)
@@ -262,37 +245,3 @@ class Model(object):
             data[name] = field.extract(self)
                 
         self._data = data
-
-    def extra_files(self):
-        # Hook for extra files that can be used for making a checksum
-        return []
-
-    def checksum(self):
-        checksums = {}
-        for path, chk in self.parsed_files.items():
-            if not path.startswith(self.base_path):
-                continue
-            path = path[len(self.base_path):]
-            checksums[path] = chk
-
-        for path in self.extra_files():
-            if not path.startswith(self.base_path):
-                continue
-            key = path[len(self.base_path):]
-            if checksums.get(key):
-                continue
-            checksums[key] = hashlib.md5(open(path).read()).hexdigest()
-
-        for name, field in self.fields():
-            chk = field.checksum()
-            if chk is not None:
-                checksums[name] = chk
-
-        checksum = hashlib.md5()
-        for key in sorted(checksums.keys()):
-            checksum.update(key)
-            checksum.update(checksums[key])
-
-        return checksum.hexdigest()
-    
-

@@ -1,4 +1,4 @@
-import rdflib, os
+import rdflib, os, hashlib
 from . import rdfmodel as model
 
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
@@ -56,10 +56,29 @@ class Bundle(model.Model):
         self.parse(os.path.join(path, 'manifest.ttl'))
         self.parse('units.ttl') 
 
-    def extra_files(self):
+    def all_files(self):
         for topdir, dirnames, filenames in os.walk(self.base_path):
             for filename in filenames:
                 yield os.path.realpath(os.path.join(topdir, filename))
+
+    def checksum(self):
+        checksums = {}
+
+        for path in self.all_files():
+            if not path.startswith(self.base_path):
+                continue
+            key = path[len(self.base_path):]
+            if checksums.get(key):
+                continue
+            checksums[key] = hashlib.md5(open(path).read()).hexdigest()
+
+        checksum = hashlib.md5()
+        for key in sorted(checksums.keys()):
+            checksum.update(key)
+            checksum.update(checksums[key])
+
+        return checksum.hexdigest()
+    
 
     def extract_data(self):
         super(Bundle, self).extract_data()
