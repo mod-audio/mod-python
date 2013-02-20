@@ -171,6 +171,11 @@ class BundleTest(unittest.TestCase):
         self.assertEquals(comp['package'], 'invada.lv2')
 
     @attr(dev=1)
+    def test_plugin_url(self):
+        comp = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
+        self.assertEquals(comp['url'], 'http://invadarecords.com/plugins/lv2/compressor/stereo')
+
+    @attr(slow=1)
     def test_units_path(self):
         open('/tmp/units.ttl', 'w').write(open('units.ttl').read())
         cur_dir = os.getcwd()

@@ -159,7 +159,7 @@ class EffectIndex(Index):
                     package=ID(stored=True),
                     category=ID(stored=True),
                     description=TEXT,
-                    version=NUMERIC(decimal_places=5, stored=True),
+                    #version=NUMERIC(decimal_places=5, stored=True),
                     stability=ID(stored=True),
                     input_ports=NUMERIC(stored=True),
                     output_ports=NUMERIC(stored=True),

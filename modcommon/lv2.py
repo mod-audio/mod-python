@@ -57,7 +57,7 @@ class Bundle(model.Model):
         self.base_path = os.path.realpath(path)
         if path.endswith('/'):
             path = path[:-1]
-        self.package_name = path.split('/')[-1]
+        self.package_name = unicode(path.split('/')[-1])
         if not re.match('^[A-Za-z0-9._-]+$', self.package_name):
             raise Exception("Invalid package name: %s" % self.package_name)
 
@@ -243,7 +243,7 @@ class BundlePackage(object):
             shutil.rmtree(tmp_dir)
 
         self.fh = plugin_fh
-        #self.uid = package_id
+        self.uid = bundle.data['_id']
         #self.name = package
         #self.effects = effects
 
