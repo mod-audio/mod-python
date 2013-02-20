@@ -50,7 +50,9 @@ class Bundle(model.Model):
     
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
 
-    def __init__(self, path):
+    def __init__(self, path, units_file='units.ttl'):
+        if not os.path.exists(units_file):
+            raise Exception("Can't find units.ttl file")
         super(Bundle, self).__init__()
         self.base_path = os.path.realpath(path)
         if path.endswith('/'):
@@ -60,7 +62,7 @@ class Bundle(model.Model):
             raise Exception("Invalid package name: %s" % self.package_name)
 
         self.parse(os.path.join(path, 'manifest.ttl'))
-        self.parse('units.ttl')
+        self.parse(units_file)
 
     def all_files(self):
         for topdir, dirnames, filenames in os.walk(self.base_path):
@@ -209,13 +211,13 @@ def random_word(length=8):
 
 class BundlePackage(object):
 
-    def __init__(self, path):
+    def __init__(self, path, *args, **kwargs):
         if path.endswith('/'):
             path = path[:-1]        
         package = path.split('/')[-1]
         assert not package.startswith('__')
 
-        bundle = Bundle(path)
+        bundle = Bundle(path, *args, **kwargs)
 
         # Now create a temporary directory to make a
         # tgz file with everything relevant

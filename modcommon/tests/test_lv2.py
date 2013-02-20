@@ -170,8 +170,19 @@ class BundleTest(unittest.TestCase):
         self.assertEquals(comp['package_id'], inv['_id'])
         self.assertEquals(comp['package'], 'invada.lv2')
 
-class BundlePackageTest(unittest.TestCase):
     @attr(dev=1)
+    def test_units_path(self):
+        open('/tmp/units.ttl', 'w').write(open('units.ttl').read())
+        cur_dir = os.getcwd()
+        try:
+            os.chdir('..')
+            inv = Bundle(os.path.join(ROOT, 'invada.lv2'), units_file='/tmp/units.ttl')
+            self.assertEquals(invada.data['_id'], inv.data['_id'])
+        finally:
+            os.remove('/tmp/units.ttl')
+
+class BundlePackageTest(unittest.TestCase):
+    @attr(slow=1)
     def test_packaging(self):
         package = BundlePackage(os.path.join(ROOT, 'invada.lv2'))
         tmp_dir = '/tmp/'+''.join([ random.choice('asdf') for i in range(10) ])
