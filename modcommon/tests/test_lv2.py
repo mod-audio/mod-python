@@ -1,8 +1,8 @@
 # -*- coding: utf-8
 
-import unittest, os, random, shutil
+import unittest, os, random, shutil, subprocess
 from nose.plugins.attrib import attr
-from modcommon.lv2 import Bundle
+from modcommon.lv2 import Bundle, BundlePackage
 
 ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -152,8 +152,38 @@ class BundleTest(unittest.TestCase):
         finally:
             shutil.rmtree(new_inv)
 
-        
+    @attr(slow=1)
+    def test_plugin_checksum_is_compatible_with_mongo_objid(self):
+        comp = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
+        inv = invada.data
 
-            
+        from bson.objectid import ObjectId
 
-        
+        self.assertEquals(str(ObjectId(comp['_id'])), str(comp['_id']))
+        self.assertEquals(str(ObjectId(inv['_id'])), str(inv['_id']))
+
+    @attr(slow=1)
+    def test_plugin_package_data(self):
+        comp = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
+        inv = invada.data
+
+        self.assertEquals(comp['package_id'], inv['_id'])
+        self.assertEquals(comp['package'], 'invada.lv2')
+
+class BundlePackageTest(unittest.TestCase):
+    @attr(dev=1)
+    def test_packaging(self):
+        package = BundlePackage(os.path.join(ROOT, 'invada.lv2'))
+        tmp_dir = '/tmp/'+''.join([ random.choice('asdf') for i in range(10) ])
+        cur_dir = os.getcwd()
+        try:
+            os.mkdir(tmp_dir)
+            os.chdir(tmp_dir)
+            open('plugin.tgz', 'w').write(package.read())
+            subprocess.Popen(['tar', 'zxf', 'plugin.tgz']).wait()
+            os.chdir(cur_dir)
+            bundle = Bundle(os.path.join(tmp_dir, 'invada.lv2'))
+            self.assertEquals(bundle.data['_id'], invada.data['_id'])
+        finally:
+            os.chdir(cur_dir)
+            shutil.rmtree(tmp_dir)

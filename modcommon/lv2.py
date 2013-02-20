@@ -1,4 +1,4 @@
-import rdflib, os, hashlib
+import rdflib, os, hashlib, re, random, shutil, subprocess
 from . import rdfmodel as model
 
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
@@ -53,8 +53,14 @@ class Bundle(model.Model):
     def __init__(self, path):
         super(Bundle, self).__init__()
         self.base_path = os.path.realpath(path)
+        if path.endswith('/'):
+            path = path[:-1]
+        self.package_name = path.split('/')[-1]
+        if not re.match('^[A-Za-z0-9._-]+$', self.package_name):
+            raise Exception("Invalid package name: %s" % self.package_name)
+
         self.parse(os.path.join(path, 'manifest.ttl'))
-        self.parse('units.ttl') 
+        self.parse('units.ttl')
 
     def all_files(self):
         for topdir, dirnames, filenames in os.walk(self.base_path):
@@ -99,12 +105,23 @@ class Bundle(model.Model):
             
     def extract_data(self):
         super(Bundle, self).extract_data()
-        self._data['_id'] = self.checksum()
+        self._data['_id'] = self.checksum()[:24]
         for url in self._data['plugins']:
-            data = dict(self._data['plugins'][url].items())
+            plugin = self._data['plugins'][url]
+            try:
+                binary = plugin['binary'].split('/')[-1]
+                assert binary.endswith('.so')
+                assert re.match('^[A-Za-z0-9._-]+$', binary)
+                assert not binary.startswith('__')
+            except AssertionError:
+                raise Exception("Invalid binary file: %s" % binary)
+
+            data = dict(plugin.items())
             data['binary'] = hashlib.md5(open(data['binary']).read()).hexdigest()
             serialized = url + '|' + self._data_fingerprint(data)
-            self._data['plugins'][url]['_id'] = hashlib.md5(serialized).hexdigest()
+            plugin['_id'] = hashlib.md5(serialized).hexdigest()[:24]
+            plugin['package'] = self.package_name
+            plugin['package_id'] = self._data['_id']
             
 
 class Plugin(model.Model):
@@ -185,3 +202,54 @@ class Foaf(model.Model):
     mbox = model.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
     homepage = model.StringField(foaf.homepage)
 
+
+def random_word(length=8):
+    chars = 'abcdefghijklmnoprqstuvwxyz'
+    return ''.join([ random.choice(chars) for x in range(length) ])
+
+class BundlePackage(object):
+
+    def __init__(self, path):
+        if path.endswith('/'):
+            path = path[:-1]        
+        package = path.split('/')[-1]
+        assert not package.startswith('__')
+
+        bundle = Bundle(path)
+
+        # Now create a temporary directory to make a
+        # tgz file with everything relevant
+        tmp_dir = '/tmp/%s' % random_word()
+        cur_dir = os.getcwd()
+
+        try:
+            filename = 'plugin.tgz'
+
+            os.mkdir(tmp_dir)
+            os.chdir(tmp_dir)
+
+            subprocess.Popen(['cp', '-r', path, tmp_dir]).wait()
+
+            proc = subprocess.Popen(['tar', 'zcf', filename, 
+                                     package])
+            proc.wait()
+
+            plugin_fh = open(filename)
+
+        finally:
+            os.chdir(cur_dir)
+            shutil.rmtree(tmp_dir)
+
+        self.fh = plugin_fh
+        #self.uid = package_id
+        #self.name = package
+        #self.effects = effects
+
+    def read(self, *args):
+        return self.fh.read(*args)
+    def close(self):
+        self.fh.close()
+    def tell(self):
+        return self.fh.tell()
+    def seek(self, *args):
+        return self.fh.seek(*args)
