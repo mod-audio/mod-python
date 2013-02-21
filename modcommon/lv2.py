@@ -4,7 +4,7 @@ from . import rdfmodel as model
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
-
+webgui = rdflib.Namespace('http://portalmod.com/ns/webgui#')
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
 
 category_index = {
@@ -149,6 +149,8 @@ class Plugin(model.Model):
     
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
+
+    document_root = model.DirectoryField(webgui.documentRoot)
 
     def __category_modifier(data):
         for category in data.keys():
