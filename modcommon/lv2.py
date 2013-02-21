@@ -212,7 +212,7 @@ class Layout(rdfmodel.Model):
     model = rdfmodel.StringField(webgui.model)
     color = rdfmodel.StringField(webgui.color)
     label = rdfmodel.StringField(webgui.label)
-    branding = rdfmodel.FileField(webgui.branding)
+    brand_image = rdfmodel.FileField(webgui.brandImage)
 
 
 def random_word(length=8):
