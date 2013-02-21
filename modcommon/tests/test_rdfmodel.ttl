@@ -42,7 +42,10 @@
                        ],[
                            a foaf:Person;
 			   foaf:name "Just John";
-                       ].
+                       ];
+
+		       test:somefile <test_rdfmodel.py>;
+		       test:invadadir <invada.lv2>.
 
 <http://mytest/item_a> a test:Item ;
 		       test:hasProperty test:propA.

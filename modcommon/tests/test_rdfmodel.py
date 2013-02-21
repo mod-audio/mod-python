@@ -51,6 +51,9 @@ class TestModel(model.Model):
     item_type = model.TypeField()
     item_type_with_ns = model.TypeField(ns=ns)
 
+    thisfile = model.FileField(ns.somefile)
+    invadadir = model.DirectoryField(ns.invadadir)
+
 class Foaf(model.Model):
     item_type = model.TypeField(ns=foaf)
 
@@ -220,4 +223,16 @@ class AmbiguousTest(BaseTest):
         self.assertEquals(self.data['name'], "My Name")
         self.assertEquals(self.data['value'], 17)
 
+class FileFieldTest(BaseTest):
+    def test_file_field(self):
+        self.assertEquals(self.data['thisfile'], 
+                          os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                       'test_rdfmodel.py'))
+
+class DirectoryFieldTest(BaseTest):
+    def test_directory_field(self):
+        self.assertEquals(self.data['invadadir'], 
+                          os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                       'invada.lv2'))
+        
 # TODO test list order and filefield

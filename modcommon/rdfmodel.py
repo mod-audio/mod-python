@@ -171,6 +171,15 @@ class FileField(StringField):
         self.file_path = data
         return data
 
+class DirectoryField(FileField):
+    def extract(self, model):
+        data = super(DirectoryField, self).extract(model)
+        if data is None:
+            return
+
+        assert os.path.isdir(data)
+        return data
+
 class Model(object):
 
     _type = None
