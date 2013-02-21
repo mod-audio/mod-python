@@ -170,7 +170,7 @@ class BundleTest(unittest.TestCase):
         self.assertEquals(comp['package_id'], inv['_id'])
         self.assertEquals(comp['package'], 'invada.lv2')
 
-    @attr(dev=1)
+    @attr(slow=1)
     def test_plugin_url(self):
         comp = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/stereo']
         self.assertEquals(comp['url'], 'http://invadarecords.com/plugins/lv2/compressor/stereo')
@@ -185,6 +185,20 @@ class BundleTest(unittest.TestCase):
             self.assertEquals(invada.data['_id'], inv.data['_id'])
         finally:
             os.remove('/tmp/units.ttl')
+
+    @attr(slow=1)
+    def test_version_and_stability(self):
+        erreverb = invada.data['plugins']['http://invadarecords.com/plugins/lv2/erreverb/mono']
+        compressor = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/mono']
+        delay = invada.data['plugins']['http://invadarecords.com/plugins/lv2/delay/mono']
+
+        self.assertEquals(erreverb['version'], '0.0')
+        self.assertEquals(erreverb['stability'], 'stable')
+        self.assertEquals(compressor['version'], '0.1')
+        self.assertEquals(compressor['stability'], 'testing')
+        self.assertEquals(delay['version'], '1.1')
+        self.assertEquals(delay['stability'], 'unstable')
+        
 
 class BundlePackageTest(unittest.TestCase):
     @attr(slow=1)

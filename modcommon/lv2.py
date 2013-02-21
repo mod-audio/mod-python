@@ -135,8 +135,8 @@ class Plugin(rdfmodel.Model):
     developer = rdfmodel.InlineModelField(doap.developer, 'Foaf')
     license = rdfmodel.StringField(doap.license, lambda x: x.split('/')[-1])
 
-    microVersion = rdfmodel.IntegerField(lv2core.microVersion)
-    minorVersion = rdfmodel.IntegerField(lv2core.minorVersion)
+    micro_version = rdfmodel.IntegerField(lv2core.microVersion, default=0)
+    minor_version = rdfmodel.IntegerField(lv2core.minorVersion, default=0)
 
     order = lambda x: x['index']
     audio_input_ports = rdfmodel.ListField(lv2core.port, rdfmodel.InlineModelField, 'Port', order=order,
@@ -172,6 +172,20 @@ class Plugin(rdfmodel.Model):
         d['ports']['audio']['output'] =   d.pop('audio_output_ports')
         d['ports']['control']['input'] =  d.pop('control_input_ports')
         d['ports']['control']['output'] = d.pop('control_output_ports')
+
+        minor = d.get('minor_version')
+        micro = d.get('micro_version')
+
+        d['version'] = '%d.%d' % (minor, micro)
+
+        if minor % 2 == 0 and micro % 2 == 0:
+            d['stability'] = 'stable'
+        elif minor % 2 == 0:
+            d['stability'] = 'testing'
+        else:
+            d['stability'] = 'unstable'
+
+        
 
 class Port(rdfmodel.Model):
     symbol = rdfmodel.StringField(lv2core.symbol)

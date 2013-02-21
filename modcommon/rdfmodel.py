@@ -36,10 +36,11 @@ class IDField(Field):
         return unicode(model.subject)
 
 class DataField(Field):
-    def __init__(self, predicate, modifier=None, filter=None):
+    def __init__(self, predicate, modifier=None, filter=None, default=None):
         self.predicate = predicate
         self.modifier = modifier
         self.filter = filter
+        self.default = default
         self.object = None
 
     def extract(self, model):
@@ -49,6 +50,7 @@ class DataField(Field):
             data = self.modify_and_filter(data)
             if data is not None:
                 return data
+        return self.default
 
     def format_data(self, data, model):
         raise NotImplemented

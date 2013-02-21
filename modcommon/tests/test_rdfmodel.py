@@ -54,6 +54,11 @@ class TestModel(model.Model):
     thisfile = model.FileField(ns.somefile)
     invadadir = model.DirectoryField(ns.invadadir)
 
+    default_int = model.IntegerField(ns.defaultint, default=3)
+    default_float = model.FloatField(ns.defaultfloat, default=3.5)
+    default_string = model.StringField(ns.defaultstring, default="three")
+    
+
 class Foaf(model.Model):
     item_type = model.TypeField(ns=foaf)
 
@@ -235,4 +240,8 @@ class DirectoryFieldTest(BaseTest):
                           os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                        'invada.lv2'))
         
-# TODO test list order and filefield
+class DefaultTest(BaseTest):
+    def test_default_values(self):
+        self.assertEquals(self.data['default_int'], 3)
+
+# TODO test list order
