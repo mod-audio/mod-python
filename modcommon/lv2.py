@@ -1,5 +1,5 @@
 import rdflib, os, hashlib, re, random, shutil, subprocess
-from . import rdfmodel as model
+from . import rdfmodel
 
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
@@ -46,9 +46,9 @@ category_index = {
     'MixerPlugin': ['Utility', 'Mixer'],
     }
 
-class Bundle(model.Model):
+class Bundle(rdfmodel.Model):
     
-    plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
+    plugins = rdfmodel.ModelSearchField(lv2core.Plugin, 'Plugin')
 
     def __init__(self, path, units_file='units.ttl'):
         if not os.path.exists(units_file):
@@ -126,31 +126,33 @@ class Bundle(model.Model):
             plugin['package_id'] = self._data['_id']
             
 
-class Plugin(model.Model):
+class Plugin(rdfmodel.Model):
 
-    url = model.IDField()
-    name = model.StringField(doap.name)
-    binary = model.FileField(lv2core.binary)
-    maintainer = model.InlineModelField(doap.maintainer, 'Foaf')
-    developer = model.InlineModelField(doap.developer, 'Foaf')
-    license = model.StringField(doap.license, lambda x: x.split('/')[-1])
+    url = rdfmodel.IDField()
+    name = rdfmodel.StringField(doap.name)
+    binary = rdfmodel.FileField(lv2core.binary)
+    maintainer = rdfmodel.InlineModelField(doap.maintainer, 'Foaf')
+    developer = rdfmodel.InlineModelField(doap.developer, 'Foaf')
+    license = rdfmodel.StringField(doap.license, lambda x: x.split('/')[-1])
 
-    microVersion = model.IntegerField(lv2core.microVersion)
-    minorVersion = model.IntegerField(lv2core.minorVersion)
+    microVersion = rdfmodel.IntegerField(lv2core.microVersion)
+    minorVersion = rdfmodel.IntegerField(lv2core.minorVersion)
 
     order = lambda x: x['index']
-    audio_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
+    audio_input_ports = rdfmodel.ListField(lv2core.port, rdfmodel.InlineModelField, 'Port', order=order,
                                         accepts=[lv2core.AudioPort, lv2core.InputPort])
-    audio_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
+    audio_output_ports = rdfmodel.ListField(lv2core.port, rdfmodel.InlineModelField, 'Port', order=order,
                                          accepts=[lv2core.AudioPort, lv2core.OutputPort])
 
-    control_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlInputPort', order=order,
+    control_input_ports = rdfmodel.ListField(lv2core.port, rdfmodel.InlineModelField, 'ControlInputPort', order=order,
                                           accepts=[lv2core.ControlPort, lv2core.InputPort])
     
-    control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
+    control_output_ports = rdfmodel.ListField(lv2core.port, rdfmodel.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
 
-    document_root = model.DirectoryField(webgui.documentRoot)
+    layout = rdfmodel.InlineModelField(webgui.layout, "Layout")
+
+    document_root = rdfmodel.DirectoryField(webgui.documentRoot)
 
     def __category_modifier(data):
         for category in data.keys():
@@ -160,7 +162,7 @@ class Plugin(model.Model):
                 pass
         return []
         
-    category = model.TypeField(ns=lv2core, modifier=__category_modifier)
+    category = rdfmodel.TypeField(ns=lv2core, modifier=__category_modifier)
 
     def extract_data(self):
         super(Plugin, self).extract_data()
@@ -171,40 +173,46 @@ class Plugin(model.Model):
         d['ports']['control']['input'] =  d.pop('control_input_ports')
         d['ports']['control']['output'] = d.pop('control_output_ports')
 
-class Port(model.Model):
-    symbol = model.StringField(lv2core.symbol)
-    name = model.StringField(lv2core.name)
-    index = model.IntegerField(lv2core['index'])
+class Port(rdfmodel.Model):
+    symbol = rdfmodel.StringField(lv2core.symbol)
+    name = rdfmodel.StringField(lv2core.name)
+    index = rdfmodel.IntegerField(lv2core['index'])
 
 class ControlInputPort(Port):
-    default = model.FloatField(lv2core.default)
-    minimum = model.FloatField(lv2core.minimum)
-    maximum = model.FloatField(lv2core.maximum)
+    default = rdfmodel.FloatField(lv2core.default)
+    minimum = rdfmodel.FloatField(lv2core.minimum)
+    maximum = rdfmodel.FloatField(lv2core.maximum)
 
-    unit = model.InlineModelField(units.unit, 'Unit')
+    unit = rdfmodel.InlineModelField(units.unit, 'Unit')
 
-    toggled = model.BooleanPropertyField(lv2core.portProperty, lv2core.toggled)
-    enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.enumeration)
-    logarithmic = model.BooleanPropertyField(lv2core.portProperty, epp.logarithmic)
-    integer = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
-    enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
-    scalePoints = model.ListField(lv2core.scalePoint, model.InlineModelField, 'ScalePoint', order=lambda x:x['value'])
+    toggled = rdfmodel.BooleanPropertyField(lv2core.portProperty, lv2core.toggled)
+    enumeration = rdfmodel.BooleanPropertyField(lv2core.portProperty, lv2core.enumeration)
+    logarithmic = rdfmodel.BooleanPropertyField(lv2core.portProperty, epp.logarithmic)
+    integer = rdfmodel.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
+    enumeration = rdfmodel.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
+    scalePoints = rdfmodel.ListField(lv2core.scalePoint, rdfmodel.InlineModelField, 'ScalePoint', order=lambda x:x['value'])
 
-class Unit(model.Model):
-    label = model.StringField(model.rdfschema.label)
-    render = model.StringField(units.render)
-    symbol = model.StringField(units.symbol)
+class Unit(rdfmodel.Model):
+    label = rdfmodel.StringField(rdfmodel.rdfschema.label)
+    render = rdfmodel.StringField(units.render)
+    symbol = rdfmodel.StringField(units.symbol)
 
-class ScalePoint(model.Model):
-    label = model.StringField(model.rdfschema.label)
-    value = model.FloatField(model.rdfsyntax.value)
+class ScalePoint(rdfmodel.Model):
+    label = rdfmodel.StringField(rdfmodel.rdfschema.label)
+    value = rdfmodel.FloatField(rdfmodel.rdfsyntax.value)
 
-class Foaf(model.Model):
+class Foaf(rdfmodel.Model):
     foaf = rdflib.Namespace('http://xmlns.com/foaf/0.1/')
 
-    name = model.StringField(foaf.name)
-    mbox = model.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
-    homepage = model.StringField(foaf.homepage)
+    name = rdfmodel.StringField(foaf.name)
+    mbox = rdfmodel.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
+    homepage = rdfmodel.StringField(foaf.homepage)
+
+class Layout(rdfmodel.Model):
+    model = rdfmodel.StringField(webgui.model)
+    color = rdfmodel.StringField(webgui.color)
+    label = rdfmodel.StringField(webgui.label)
+    branding = rdfmodel.FileField(webgui.branding)
 
 
 def random_word(length=8):
