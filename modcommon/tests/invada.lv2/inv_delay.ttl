@@ -63,6 +63,9 @@
     lv2:optionalFeature lv2:hardRtCapable ;
     uiext:ui <http://invadarecords.com/plugins/lv2/delay/gui>;
 
+    lv2:minorVersion 1;
+    lv2:microVersion 1;
+
     lv2:port [
 	a lv2:InputPort, lv2:ControlPort ;
 	lv2:index 0 ;

@@ -67,6 +67,9 @@
     uiext:ui <http://invadarecords.com/plugins/lv2/compressor/gui> ;
     dc:replaces <urn:ladspa:3308> ;
 
+    lv2:minorVersion 0;
+    lv2:microVersion 1;
+
     lv2:port [
 	a lv2:InputPort, lv2:ControlPort ;
 	lv2:index 0 ;
