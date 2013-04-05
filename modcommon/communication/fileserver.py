@@ -33,8 +33,8 @@ class FileSender(tornado.web.RequestHandler):
     @classmethod
     def urls(cls, path):
         return [
-            (r"/%s/([a-z0-9_\.]+)$" % path, cls),
-            (r"/%s/([a-z0-9_\.]+)/(\d+)" % path, cls),
+            (r"/%s/([a-z0-9_\-\.]+)$" % path, cls),
+            (r"/%s/([a-z0-9_\-\.]+)/(\d+)" % path, cls),
             ]
 
     def get(self, filename, chunk_number=None):
