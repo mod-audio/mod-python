@@ -177,11 +177,11 @@ class Plugin(model.Model):
         d['version'] = '%d.%d' % (minor, micro)
 
         if minor % 2 == 0 and micro % 2 == 0:
-            d['stability'] = 'stable'
+            d['stability'] = u'stable'
         elif minor % 2 == 0:
-            d['stability'] = 'testing'
+            d['stability'] = u'testing'
         else:
-            d['stability'] = 'unstable'
+            d['stability'] = u'unstable'
 
         
 
@@ -228,8 +228,9 @@ def random_word(length=8):
 class BundlePackage(object):
 
     def __init__(self, path, *args, **kwargs):
+        path = os.path.realpath(path)
         if path.endswith('/'):
-            path = path[:-1]        
+            path = path[:-1]
         package = path.split('/')[-1]
         assert not package.startswith('__')
 

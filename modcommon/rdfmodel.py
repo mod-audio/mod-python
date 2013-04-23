@@ -219,11 +219,14 @@ class Model(object):
                         yield triple
 
     def parse(self, path):
-        if not path.startswith('file://'):
+        if not '://' in path:
             path = os.path.realpath(path)
             file_path = path
             path = 'file://%s' % path
         else:
+            if not path.startswith('file://'):
+                # we only follow files
+                return
             file_path = path[len('file://'):]
             
         if file_path in self.parsed_files:
@@ -231,6 +234,7 @@ class Model(object):
 
         assert os.path.exists(file_path)
         assert os.path.isfile(file_path)
+
         self.parsed_files[file_path] = True #hashlib.md5(open(file_path).read()).hexdigest()
 
         graph = rdflib.ConjunctiveGraph()
