@@ -45,7 +45,10 @@
                        ];
 
 		       test:somefile <test_rdfmodel.py>;
-		       test:invadadir <invada.lv2>.
+		       test:invadadir <invada.lv2>;
+
+		       test:filecontent <data/content.txt>;
+		       test:jsondata <data/content.json>.
 
 <http://mytest/item_a> a test:Item ;
 		       test:hasProperty test:propA.

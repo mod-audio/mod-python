@@ -5,6 +5,10 @@ ns = rdflib.Namespace('http://test/ns#')
 otherns = rdflib.Namespace('http://test/another/ns#')
 foaf = rdflib.Namespace('http://person/ns#')
 
+def dev(test):
+    test.dev = 1
+    return test
+
 class TestModel(model.Model):
 
     name = model.StringField(ns.name)
@@ -57,7 +61,9 @@ class TestModel(model.Model):
     default_int = model.IntegerField(ns.defaultint, default=3)
     default_float = model.FloatField(ns.defaultfloat, default=3.5)
     default_string = model.StringField(ns.defaultstring, default="three")
-    
+
+    file_content = model.FileContentField(ns.filecontent)
+    json_data = model.JsonDataField(ns.jsondata)
 
 class Foaf(model.Model):
     item_type = model.TypeField(ns=foaf)
@@ -233,6 +239,14 @@ class FileFieldTest(BaseTest):
         self.assertEquals(self.data['thisfile'], 
                           os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                        'test_rdfmodel.py'))
+
+class FileContentFieldTest(BaseTest):
+    def test_file_content_field(self):
+        self.assertEquals(self.data['file_content'], 'Hello World! :-)\n')
+
+class JsonDataFieldTest(BaseTest):
+    def test_json_data_field(self):
+        self.assertEquals(self.data['json_data'], {'Hello': 'World'})        
 
 class DirectoryFieldTest(BaseTest):
     def test_directory_field(self):

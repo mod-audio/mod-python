@@ -173,6 +173,24 @@ class FileField(StringField):
         self.file_path = data
         return data
 
+class FileContentField(FileField):
+    def extract(self, model):
+        path = super(FileContentField, self).extract(model)
+        try:
+            assert os.path.exists(path)
+        except:
+            return None
+        if not os.path.isfile(path):
+            raise Exception("%s is not a file" % path)
+        return open(path).read()
+
+class JsonDataField(FileContentField):
+    def extract(self, model):
+        data = super(JsonDataField, self).extract(model)
+        if data is None:
+            return None
+        return json.loads(data)
+
 class DirectoryField(FileField):
     def extract(self, model):
         data = super(DirectoryField, self).extract(model)
