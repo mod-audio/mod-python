@@ -216,9 +216,15 @@ class ScalePoint(model.Model):
 class Foaf(model.Model):
     foaf = rdflib.Namespace('http://xmlns.com/foaf/0.1/')
 
-    name = model.StringField(foaf.name)
-    mbox = model.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
-    homepage = model.StringField(foaf.homepage)
+    name = rdfmodel.StringField(foaf.name)
+    mbox = rdfmodel.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
+    homepage = rdfmodel.StringField(foaf.homepage)
+
+class Layout(rdfmodel.Model):
+    model = rdfmodel.StringField(webgui.model)
+    color = rdfmodel.StringField(webgui.color)
+    label = rdfmodel.StringField(webgui.label)
+    brand_image = rdfmodel.FileField(webgui.brandImage)
 
 
 def random_word(length=8):
