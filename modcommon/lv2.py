@@ -6,6 +6,7 @@ doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
 webgui = rdflib.Namespace('http://portalmod.com/ns/webgui#')
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
+mod = rdflib.Namespace('http://portalmod.com/ns/mod#')
 
 category_index = {
     'DelayPlugin': ['Delay'],
@@ -150,7 +151,7 @@ class Plugin(model.Model):
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
 
-    document_root = model.DirectoryField(webgui.documentRoot)
+    icon = model.InlineModelField(mod.icon, 'Icon')
 
     def __category_modifier(data):
         for category in data.keys():
@@ -216,16 +217,14 @@ class ScalePoint(model.Model):
 class Foaf(model.Model):
     foaf = rdflib.Namespace('http://xmlns.com/foaf/0.1/')
 
-    name = rdfmodel.StringField(foaf.name)
-    mbox = rdfmodel.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
-    homepage = rdfmodel.StringField(foaf.homepage)
+    name = model.StringField(foaf.name)
+    mbox = model.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
+    homepage = model.StringField(foaf.homepage)
 
-class Layout(rdfmodel.Model):
-    model = rdfmodel.StringField(webgui.model)
-    color = rdfmodel.StringField(webgui.color)
-    label = rdfmodel.StringField(webgui.label)
-    brand_image = rdfmodel.FileField(webgui.brandImage)
-
+class Icon(model.Model):
+    template = model.FileContentField(mod.iconTemplate)
+    template_data = model.JsonDataField(mod.iconData)
+    basedir = model.DirectoryField(mod.iconBasedir)
 
 def random_word(length=8):
     chars = 'abcdefghijklmnoprqstuvwxyz'
