@@ -63,6 +63,7 @@ class TestModel(model.Model):
     default_string = model.StringField(ns.defaultstring, default="three")
 
     file_content = model.FileContentField(ns.filecontent)
+    html_template = model.HtmlTemplateField(ns.htmltemplate)
     json_data = model.JsonDataField(ns.jsondata)
 
 class Foaf(model.Model):
@@ -243,7 +244,9 @@ class FileFieldTest(BaseTest):
 class FileContentFieldTest(BaseTest):
     def test_file_content_field(self):
         self.assertEquals(self.data['file_content'], 'Hello World! :-)\n')
-
+    def test_html_template_field(self):
+        self.assertEquals(self.data['html_template'], '<div>Hello World</div>')
+        
 class JsonDataFieldTest(BaseTest):
     def test_json_data_field(self):
         self.assertEquals(self.data['json_data'], {'Hello': 'World'})        

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rdflib, os, json, sys
+import rdflib, os, json, sys, re
 
 rdfschema = rdflib.Namespace('http://www.w3.org/2000/01/rdf-schema#')
 rdfsyntax = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
@@ -183,6 +183,13 @@ class FileContentField(FileField):
         if not os.path.isfile(path):
             raise Exception("%s is not a file" % path)
         return open(path).read()
+
+class HtmlTemplateField(FileContentField):
+    def extract(self, model):
+        content = super(HtmlTemplateField, self).extract(model)
+        if content is None:
+            return None
+        return re.sub('<!--.+?-->', '', content).strip()
 
 class JsonDataField(FileContentField):
     def extract(self, model):

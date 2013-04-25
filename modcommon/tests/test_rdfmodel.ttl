@@ -48,6 +48,7 @@
 		       test:invadadir <invada.lv2>;
 
 		       test:filecontent <data/content.txt>;
+		       test:htmltemplate <data/content.html>;
 		       test:jsondata <data/content.json>.
 
 <http://mytest/item_a> a test:Item ;
