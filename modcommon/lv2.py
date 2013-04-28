@@ -222,9 +222,11 @@ class Foaf(model.Model):
     homepage = model.StringField(foaf.homepage)
 
 class Icon(model.Model):
-    template = model.FileContentField(mod.iconTemplate)
+    template = model.HtmlTemplateField(mod.iconTemplate)
     template_data = model.JsonDataField(mod.iconData)
     basedir = model.DirectoryField(mod.iconBasedir)
+    image = model.FileField(mod.iconImage)
+    thumbnail = model.FileField(mod.iconThumbnail)
 
 def random_word(length=8):
     chars = 'abcdefghijklmnoprqstuvwxyz'
