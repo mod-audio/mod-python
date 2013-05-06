@@ -6,7 +6,7 @@ doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
 webgui = rdflib.Namespace('http://portalmod.com/ns/webgui#')
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
-mod = rdflib.Namespace('http://portalmod.com/ns/mod#')
+mod = rdflib.Namespace('http://portalmod.com/ns/modgui#')
 
 category_index = {
     'DelayPlugin': ['Delay'],
