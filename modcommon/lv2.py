@@ -223,8 +223,8 @@ class Foaf(model.Model):
 
 class Icon(model.Model):
     template = model.HtmlTemplateField(mod.template)
-    template_data = model.JsonDataField(mod.templateData)
-    basedir = model.DirectoryField(mod.basedir)
+    templateData = model.JsonDataField(mod.templateData)
+    resourcesDirectory = model.DirectoryField(mod.basedir)
     screenshot = model.FileField(mod.screenshot)
     thumbnail = model.FileField(mod.thumbnail)
 
