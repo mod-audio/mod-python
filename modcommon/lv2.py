@@ -177,7 +177,9 @@ class Plugin(model.Model):
 
         d['version'] = '%d.%d' % (minor, micro)
 
-        if minor % 2 == 0 and micro % 2 == 0:
+        if minor == 0 and micro == 0:
+            d['stability'] = u'experimental'
+        elif minor % 2 == 0 and micro % 2 == 0:
             d['stability'] = u'stable'
         elif minor % 2 == 0:
             d['stability'] = u'testing'
