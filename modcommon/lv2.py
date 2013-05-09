@@ -51,7 +51,7 @@ class Bundle(model.Model):
     
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
 
-    def __init__(self, path, units_file='units.ttl'):
+    def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl'):
         if not os.path.exists(units_file):
             raise Exception("Can't find units.ttl file")
         super(Bundle, self).__init__()
