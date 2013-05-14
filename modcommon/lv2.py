@@ -1,6 +1,9 @@
 import rdflib, os, hashlib, re, random, shutil, subprocess
 from . import rdfmodel as model
 
+# important so developers can catch lv2.BadSyntax instead of this huge path
+from rdflib.plugins.parsers.notation3 import BadSyntax 
+
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
