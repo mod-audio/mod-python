@@ -6,10 +6,10 @@ from rdflib.plugins.parsers.notation3 import BadSyntax
 
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
-epp = rdflib.Namespace('http://lv2plug.in/ns/dev/extportinfo#')
 webgui = rdflib.Namespace('http://portalmod.com/ns/webgui#')
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
 mod = rdflib.Namespace('http://portalmod.com/ns/modgui#')
+pprops = rdflib.Namespace('http://lv2plug.in/ns/ext/port-props/#')
 
 category_index = {
     'DelayPlugin': ['Delay'],
@@ -205,10 +205,11 @@ class ControlInputPort(Port):
 
     toggled = model.BooleanPropertyField(lv2core.portProperty, lv2core.toggled)
     enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.enumeration)
-    logarithmic = model.BooleanPropertyField(lv2core.portProperty, epp.logarithmic)
     integer = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
-    enumeration = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
     scalePoints = model.ListField(lv2core.scalePoint, model.InlineModelField, 'ScalePoint', order=lambda x:x['value'])
+    logarithmic = model.BooleanPropertyField(lv2core.portProperty, pprops.logarithmic)
+    range_steps = model.BooleanPropertyField(lv2core.portProperty, pprops.rangeSteps)
+    trigger = model.BooleanPropertyField(lv2core.portProperty, pprops.trigger)
 
 class Unit(model.Model):
     label = model.StringField(model.rdfschema.label)
@@ -227,7 +228,8 @@ class Foaf(model.Model):
     homepage = model.StringField(foaf.homepage)
 
 class Icon(model.Model):
-    template = model.HtmlTemplateField(mod.template)
+    iconTemplate = model.HtmlTemplateField(mod.iconTemplate)
+    settingsTemplate = model.HtmlTemplateField(mod.settingsTemplate)
     templateData = model.JsonDataField(mod.templateData)
     resourcesDirectory = model.DirectoryField(mod.resourcesDirectory)
     screenshot = model.FileField(mod.screenshot)
