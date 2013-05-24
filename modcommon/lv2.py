@@ -154,7 +154,7 @@ class Plugin(model.Model):
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
 
-    icon = model.InlineModelField(mod.icon, 'Icon')
+    gui = model.InlineModelField(mod.gui, 'Gui')
 
     def __category_modifier(data):
         for category in data.keys():
@@ -227,7 +227,7 @@ class Foaf(model.Model):
     mbox = model.StringField(foaf.mbox, modifier = lambda x: x.replace('mailto:', ''))
     homepage = model.StringField(foaf.homepage)
 
-class Icon(model.Model):
+class Gui(model.Model):
     iconTemplate = model.HtmlTemplateField(mod.iconTemplate)
     settingsTemplate = model.HtmlTemplateField(mod.settingsTemplate)
     templateData = model.JsonDataField(mod.templateData)
