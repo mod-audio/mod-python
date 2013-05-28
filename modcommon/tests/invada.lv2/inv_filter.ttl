@@ -4,7 +4,7 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix uiext: <http://lv2plug.in/ns/extensions/ui#> .
-@prefix epp:   <http://lv2plug.in/ns/dev/extportinfo#> .
+@prefix epp:   <http://lv2plug.in/ns/ext/port-props/#> .
 @prefix dc:    <http://dublincore.org/documents/dcmi-namespace/> .
 @prefix pg:    <http://lv2plug.in/ns/dev/port-groups#> .
 
@@ -90,6 +90,9 @@
     lv2:optionalFeature lv2:hardRtCapable ;
     uiext:ui <http://invadarecords.com/plugins/lv2/filter/gui> ;
     dc:replaces <urn:ladspa:3302> ;
+
+    lv2:minorVersion 0;
+    lv2:microVersion 2;
 
     lv2:port [
 	a lv2:InputPort, lv2:ControlPort ;

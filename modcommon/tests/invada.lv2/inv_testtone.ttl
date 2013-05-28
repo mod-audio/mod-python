@@ -4,7 +4,7 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix uiext: <http://lv2plug.in/ns/extensions/ui#> .
-@prefix epp:   <http://lv2plug.in/ns/dev/extportinfo#> .
+@prefix epp:   <http://lv2plug.in/ns/ext/port-props/#> .
 @prefix pg:    <http://lv2plug.in/ns/dev/port-groups#> .
 
 

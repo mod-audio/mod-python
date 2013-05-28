@@ -191,13 +191,16 @@ class BundleTest(unittest.TestCase):
         erreverb = invada.data['plugins']['http://invadarecords.com/plugins/lv2/erreverb/mono']
         compressor = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/mono']
         delay = invada.data['plugins']['http://invadarecords.com/plugins/lv2/delay/mono']
+        filter = invada.data['plugins']['http://invadarecords.com/plugins/lv2/filter/lpf/mono']
 
         self.assertEquals(erreverb['version'], '0.0')
-        self.assertEquals(erreverb['stability'], 'stable')
+        self.assertEquals(erreverb['stability'], 'experimental')
         self.assertEquals(compressor['version'], '0.1')
         self.assertEquals(compressor['stability'], 'testing')
         self.assertEquals(delay['version'], '1.1')
         self.assertEquals(delay['stability'], 'unstable')
+        self.assertEquals(filter['version'], '0.2')
+        self.assertEquals(filter['stability'], 'stable')
         
 
 class BundlePackageTest(unittest.TestCase):
