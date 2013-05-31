@@ -50,6 +50,11 @@ category_index = {
     'MixerPlugin': ['Utility', 'Mixer'],
     }
 
+# Note on camelCase vs underscore_separation
+# The standard adopted here is: anything that comes directly from LV2 specs, which uses camelCase,
+# remains camelCase. Variables that have its role in context of our python code (like package_id)
+# uses underscore_separation.
+
 class Bundle(model.Model):
     
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
@@ -139,8 +144,8 @@ class Plugin(model.Model):
     developer = model.InlineModelField(doap.developer, 'Foaf')
     license = model.StringField(doap.license, lambda x: x.split('/')[-1])
 
-    micro_version = model.IntegerField(lv2core.microVersion, default=0)
-    minor_version = model.IntegerField(lv2core.minorVersion, default=0)
+    microVersion = model.IntegerField(lv2core.microVersion, default=0)
+    minorVersion = model.IntegerField(lv2core.minorVersion, default=0)
 
     order = lambda x: x['index']
     audio_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
@@ -175,8 +180,8 @@ class Plugin(model.Model):
         d['ports']['control']['input'] =  d.pop('control_input_ports')
         d['ports']['control']['output'] = d.pop('control_output_ports')
 
-        minor = d.get('minor_version')
-        micro = d.get('micro_version')
+        minor = d.get('minorVersion')
+        micro = d.get('microVersion')
 
         d['version'] = '%d.%d' % (minor, micro)
 
@@ -208,7 +213,7 @@ class ControlInputPort(Port):
     integer = model.BooleanPropertyField(lv2core.portProperty, lv2core.integer)
     scalePoints = model.ListField(lv2core.scalePoint, model.InlineModelField, 'ScalePoint', order=lambda x:x['value'])
     logarithmic = model.BooleanPropertyField(lv2core.portProperty, pprops.logarithmic)
-    range_steps = model.BooleanPropertyField(lv2core.portProperty, pprops.rangeSteps)
+    rangeSteps = model.BooleanPropertyField(lv2core.portProperty, pprops.rangeSteps)
     trigger = model.BooleanPropertyField(lv2core.portProperty, pprops.trigger)
 
 class Unit(model.Model):
