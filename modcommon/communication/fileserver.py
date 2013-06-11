@@ -4,6 +4,7 @@ import os, json
 from hashlib import sha1
 import tornado.web
 from modcommon.communication.torrent import TorrentReceiver, TorrentGenerator, GridTorrentGenerator
+from modcommon.communication.crypto import Receiver
 
 """
 File transfering between Device and Cloud is done by 3 pieces:
@@ -111,8 +112,17 @@ class FileReceiver(tornado.web.RequestHandler):
                                    remote_public_key=self.remote_public_key,
                                    destination_dir=self.destination_dir)
 
-        receiver.load(torrent_data)
+        try:
+            receiver.load(torrent_data)
+        except Receiver.UnauthorizedMessage:
+            self.write(json.dumps({ 'ok': False,
+                                    'reason': "This file's source cannot be recognized. Downloading it is not safe",
+                                    }))
+            self.finish()
+            return
+                        
         info = {
+            'ok': True,
             # using int instead of boolean saves bandwidth
             'status': [ int(i) for i in receiver.status ], 
             'id': receiver.torrent_id,
