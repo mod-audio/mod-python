@@ -10,6 +10,9 @@ webgui = rdflib.Namespace('http://portalmod.com/ns/webgui#')
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
 mod = rdflib.Namespace('http://portalmod.com/ns/modgui#')
 pprops = rdflib.Namespace('http://lv2plug.in/ns/ext/port-props/#')
+atom = rdflib.Namespace('http://lv2plug.in/ns/ext/atom/#')
+lv2ev = rdflib.Namespace('http://lv2plug.in/ns/ext/event#')
+midi = rdflib.Namespace('http://lv2plug.in/ns/ext/midi/#')
 
 category_index = {
     'DelayPlugin': ['Delay'],
@@ -159,6 +162,11 @@ class Plugin(model.Model):
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
 
+    atom_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'AtomPort', order=order,
+                                       accepts=[atom.AtomPort, lv2core.InputPort])
+    event_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'EventPort', order=order,
+                                        accepts=[lv2ev.EventPort, lv2core.InputPort])
+
     gui = model.InlineModelField(mod.gui, 'Gui')
 
     def __category_modifier(data):
@@ -179,6 +187,15 @@ class Plugin(model.Model):
         d['ports']['audio']['output'] =   d.pop('audio_output_ports')
         d['ports']['control']['input'] =  d.pop('control_input_ports')
         d['ports']['control']['output'] = d.pop('control_output_ports')
+
+        # Get midi ports
+        d['ports']['midi'] = {'input':  [] }
+
+        for port in d.pop('atom_input_ports') + d.pop('event_input_ports'):
+            if port['midi']:
+                d['ports']['midi']['input'].append(port)
+
+        d['ports']['midi']['input'].sort(key=lambda port: port['index'])
 
         minor = d.get('minorVersion')
         micro = d.get('microVersion')
@@ -215,6 +232,11 @@ class ControlInputPort(Port):
     logarithmic = model.BooleanPropertyField(lv2core.portProperty, pprops.logarithmic)
     rangeSteps = model.BooleanPropertyField(lv2core.portProperty, pprops.rangeSteps)
     trigger = model.BooleanPropertyField(lv2core.portProperty, pprops.trigger)
+
+class AtomPort(Port):
+    midi = model.BooleanPropertyField(atom.supports, midi.MidiEvent)
+class EventPort(Port):
+    midi = model.BooleanPropertyField(lv2ev.supportsEvent, midi.MidiEvent)
 
 class Unit(model.Model):
     label = model.StringField(model.rdfschema.label)

@@ -120,6 +120,14 @@ class BundleTest(unittest.TestCase):
                           ['Dynamics', 'Compressor'])
 
     @attr(slow=1)
+    def test_midi_ports(self):
+        plugin = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/mono']
+        self.assertEquals(len(plugin['ports']['midi']['input']), 2)
+        self.assertEquals(plugin['ports']['midi']['input'][0]['symbol'], 'event_in')
+        self.assertEquals(plugin['ports']['midi']['input'][0]['name'], 'Event Midi')
+        self.assertEquals(plugin['ports']['midi']['input'][1]['symbol'], 'atom_in')
+
+    @attr(slow=1)
     def test_bundle_id(self):
         inv_id = invada.data['_id']
         clf_id = calf.data['_id']
