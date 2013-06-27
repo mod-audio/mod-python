@@ -112,7 +112,7 @@ class Bundle(model.Model):
             chk = [ "dict" ] + chk
             return ':'.join(chk)
         return ':'.join([ data.__class__.__name__.replace('__', ''),
-                          str(data) ])
+                          unicode(data) ])
             
     def extract_data(self):
         super(Bundle, self).extract_data()
@@ -130,7 +130,7 @@ class Bundle(model.Model):
             data = dict(plugin.items())
             data['binary'] = hashlib.md5(open(data['binary']).read()).hexdigest()
             serialized = url + '|' + self._data_fingerprint(data)
-            plugin['_id'] = hashlib.md5(serialized).hexdigest()[:24]
+            plugin['_id'] = hashlib.md5(serialized.encode('utf-8')).hexdigest()[:24]
             plugin['package'] = self.package_name
             plugin['package_id'] = self._data['_id']
             
