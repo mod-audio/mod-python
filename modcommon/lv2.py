@@ -9,10 +9,10 @@ doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 webgui = rdflib.Namespace('http://portalmod.com/ns/webgui#')
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
 mod = rdflib.Namespace('http://portalmod.com/ns/modgui#')
-pprops = rdflib.Namespace('http://lv2plug.in/ns/ext/port-props/#')
-atom = rdflib.Namespace('http://lv2plug.in/ns/ext/atom/#')
+pprops = rdflib.Namespace('http://lv2plug.in/ns/ext/port-props#')
+atom = rdflib.Namespace('http://lv2plug.in/ns/ext/atom#')
 lv2ev = rdflib.Namespace('http://lv2plug.in/ns/ext/event#')
-midi = rdflib.Namespace('http://lv2plug.in/ns/ext/midi/#')
+midi = rdflib.Namespace('http://lv2plug.in/ns/ext/midi#')
 
 category_index = {
     'DelayPlugin': ['Delay'],
