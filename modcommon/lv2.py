@@ -147,6 +147,8 @@ class Plugin(model.Model):
     developer = model.InlineModelField(doap.developer, 'Foaf')
     license = model.StringField(doap.license, lambda x: x.split('/')[-1])
 
+    description = model.StringField(model.rdfschema.comment)
+
     microVersion = model.IntegerField(lv2core.microVersion, default=0)
     minorVersion = model.IntegerField(lv2core.minorVersion, default=0)
 
