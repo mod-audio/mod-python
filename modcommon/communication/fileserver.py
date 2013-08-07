@@ -32,10 +32,14 @@ class FileSender(tornado.web.RequestHandler):
         return TorrentGenerator(os.path.join(self.base_dir, filename))
 
     @classmethod
-    def urls(cls, path):
+    def urls(cls, path=''):
+        if not path.startswith('/'):
+            path = '/%s' % path
+        if not path.endswith('/'):
+            path = '%s/' % path
         return [
-            (r"/%s/([a-z0-9_]+(?=\.[a-z0-9]+)?)$" % path, cls),
-            (r"/%s/([a-z0-9_]+(?=\.[a-z0-9]+)?)/(\d+)" % path, cls),
+            (r"%s([a-z0-9_]+(?=\.[a-z0-9]+)?)$" % path, cls),
+            (r"%s([a-z0-9_]+(?=\.[a-z0-9]+)?)/(\d+)" % path, cls),
             ]
 
     def get(self, filename, chunk_number=None):

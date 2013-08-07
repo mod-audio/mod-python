@@ -58,7 +58,7 @@ class TorrentGenerator(object):
         torrent['signature'] = sender.pack()
         
     def torrent_data(self, keyfile=None):
-        
+        # TODO cache here
         torrent = self._build_torrent()
 
         if keyfile:
