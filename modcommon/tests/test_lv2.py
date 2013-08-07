@@ -185,7 +185,8 @@ class BundleTest(unittest.TestCase):
 
     @attr(slow=1)
     def test_units_path(self):
-        open('/tmp/units.ttl', 'w').write(open('units.ttl').read())
+        self.assertTrue(os.path.exists('/usr/lib/lv2/units.lv2/units.ttl'))
+        open('/tmp/units.ttl', 'w').write(open('/usr/lib/lv2/units.lv2/units.ttl').read())
         cur_dir = os.getcwd()
         try:
             os.chdir('..')

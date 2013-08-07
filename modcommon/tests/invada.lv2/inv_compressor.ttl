@@ -4,12 +4,12 @@
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix uiext: <http://lv2plug.in/ns/extensions/ui#> .
-@prefix epp:   <http://lv2plug.in/ns/ext/port-props/#> .
+@prefix epp:   <http://lv2plug.in/ns/ext/port-props#> .
 @prefix dc:    <http://dublincore.org/documents/dcmi-namespace/> .
 @prefix pg:    <http://lv2plug.in/ns/dev/port-groups#> .
 @prefix lv2ev: <http://lv2plug.in/ns/ext/event#> .
-@prefix atom:  <http://lv2plug.in/ns/ext/atom/#> .
-@prefix midi:  <http://lv2plug.in/ns/ext/midi/#> .
+@prefix atom:  <http://lv2plug.in/ns/ext/atom#> .
+@prefix midi:  <http://lv2plug.in/ns/ext/midi#> .
 
 <http://invadarecords.com/plugins/lv2/compressor/gui>
     a uiext:GtkUI;
