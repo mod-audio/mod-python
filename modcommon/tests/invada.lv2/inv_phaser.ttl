@@ -6,6 +6,7 @@
 @prefix uiext: <http://lv2plug.in/ns/extensions/ui#> .
 @prefix epp:   <http://lv2plug.in/ns/ext/port-props#> .
 @prefix pg:    <http://lv2plug.in/ns/dev/port-groups#> .
+@prefix time:  <http://lv2plug.in/ns/ext/time/#> .
 
 <http://invadarecords.com/plugins/lv2/phaser/gui>
     a uiext:GtkUI;
@@ -118,6 +119,7 @@
 	lv2:minimum 0.5 ;
 	lv2:maximum 500 ;
 	units:unit units:s ;
+	lv2:designation time:beatsPerMinute ;
         lv2:portProperty epp:logarithmic ;
     ] , [
 	a lv2:InputPort, lv2:ControlPort ;
@@ -128,6 +130,7 @@
 	lv2:minimum -180 ;
 	lv2:maximum 180 ;
 	units:unit units:degree ;
+	lv2:designation time:beatsPerMinute ;
     ] , [
 	a lv2:InputPort, lv2:ControlPort ;
 	lv2:index 3 ;

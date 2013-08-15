@@ -13,6 +13,7 @@ pprops = rdflib.Namespace('http://lv2plug.in/ns/ext/port-props#')
 atom = rdflib.Namespace('http://lv2plug.in/ns/ext/atom#')
 lv2ev = rdflib.Namespace('http://lv2plug.in/ns/ext/event#')
 midi = rdflib.Namespace('http://lv2plug.in/ns/ext/midi#')
+time = rdflib.Namespace('http://lv2plug.in/ns/ext/time/#')
 
 category_index = {
     'DelayPlugin': ['Delay'],
@@ -234,6 +235,20 @@ class ControlInputPort(Port):
     logarithmic = model.BooleanPropertyField(lv2core.portProperty, pprops.logarithmic)
     rangeSteps = model.BooleanPropertyField(lv2core.portProperty, pprops.rangeSteps)
     trigger = model.BooleanPropertyField(lv2core.portProperty, pprops.trigger)
+
+    tap_tempo = model.BooleanPropertyField(lv2core.designation, time.beatsPerMinute)
+
+    def extract_data(self):
+        super(ControlInputPort, self).extract_data()
+        d = self.data
+
+        # Let's make sure that tap_tempo is only true if proper unit is specified
+        if not d['tap_tempo']:
+            return
+        try:
+            assert d['unit']['symbol'] in ('s', 'ms', 'hz', 'bpm')
+        except (TypeError, AssertionError):
+            d['tap_tempo'] = False
 
 class AtomPort(Port):
     midi = model.BooleanPropertyField(atom.supports, midi.MidiEvent)
