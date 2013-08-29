@@ -171,6 +171,8 @@ class Plugin(model.Model):
 
     gui = model.InlineModelField(mod.gui, 'Gui')
 
+    hidden = model.BooleanPropertyField(lv2core.portProperty, mod.hidden)
+
     def __category_modifier(data):
         for category in data.keys():
             try:
