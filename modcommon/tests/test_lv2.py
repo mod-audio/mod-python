@@ -120,6 +120,22 @@ class BundleTest(unittest.TestCase):
                           ['Dynamics', 'Compressor'])
 
     @attr(slow=1)
+    def test_tap_tempo(self):
+        plugin = invada.data['plugins']['http://invadarecords.com/plugins/lv2/phaser/mono']
+
+        # First check if we are dealing with right ports
+        self.assertTrue(plugin['ports']['control']['input'][1]['symbol'], 'cycle')
+        self.assertTrue(plugin['ports']['control']['input'][2]['symbol'], 'phase')
+        self.assertTrue(plugin['ports']['control']['input'][3]['symbol'], 'width')
+
+        # Cyle has both designation beatsPerMinute and proper time unit, so tap_tempo should be true
+        self.assertTrue(plugin['ports']['control']['input'][1]['tap_tempo'])
+        # Phaser has beatsPerMinute, but unit is degree, so tap_tempo should be false
+        self.assertFalse(plugin['ports']['control']['input'][2]['tap_tempo'])
+        # Width has proper unit, but no beatsPerMinute, so tap_tempo should be false
+        self.assertFalse(plugin['ports']['control']['input'][3]['tap_tempo'])
+
+    @attr(slow=1)
     def test_midi_ports(self):
         plugin = invada.data['plugins']['http://invadarecords.com/plugins/lv2/compressor/mono']
         self.assertEquals(len(plugin['ports']['midi']['input']), 2)
