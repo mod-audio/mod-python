@@ -1,3 +1,8 @@
+0.10.1
+======
+
+  - Hidden effect field uses rdf:Property instead of lv2.PortProperty
+
 0.10
 ====
 
