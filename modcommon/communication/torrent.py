@@ -20,14 +20,17 @@ class TorrentGenerator(object):
 
     def _calculate_length(self):
         size = os.path.getsize(self.path)
-        if size < 2**20: # 1Mb
-            return 2**16 # 128k
+        # The length calculation algorithm is based on the following:
+        # - There's a minimum reasonable package, depending on general connection.
+        # - The metadata package cannot be bigger than a chunk package
+        # - Each chunk adds 36 bytes to metadata (torrent) file
 
-        elif size < 2**23: # 8Mb
-            return 2**18 # 256k
-
-        else:
-            return 2**19 # 512k
+        min_pow = 16 # 64K
+        max_pow = 19 # 512K
+        for i in range(min_pow, max_pow):
+            if size < 2 ** (2 * i) / 36:
+                return 2 ** i
+        return 2 ** max_pow
 
     def _build_torrent(self):
         assert os.path.exists(self.path)
