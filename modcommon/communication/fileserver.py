@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, json
+import os, json, gzip
 from hashlib import sha1
 import tornado.web
 from modcommon.communication.torrent import TorrentReceiver, TorrentGenerator, GridTorrentGenerator
@@ -28,6 +28,10 @@ class FileSender(tornado.web.RequestHandler):
     def base_dir(self):
         raise NotImplemented
 
+    @property
+    def cache_dir(self):
+        return None
+
     def torrent(self, filename):
         return TorrentGenerator(os.path.join(self.base_dir, filename))
 
@@ -38,8 +42,8 @@ class FileSender(tornado.web.RequestHandler):
         if not path.endswith('/'):
             path = '%s/' % path
         return [
-            (r"%s([a-z0-9_]+(?=\.[a-z0-9]+)?)$" % path, cls),
-            (r"%s([a-z0-9_]+(?=\.[a-z0-9]+)?)/(\d+)" % path, cls),
+            (r"%s([A-Za-z0-9_.-]+)$" % path, cls),
+            (r"%s([A-Za-z0-9_.-]+)/(\d+)" % path, cls),
             ]
 
     def get(self, filename, chunk_number=None):
@@ -48,17 +52,69 @@ class FileSender(tornado.web.RequestHandler):
         else:
             return self.get_chunk(filename, int(chunk_number))
 
+    
     def get_torrent(self, filename):
-        gen = self.torrent(filename)
-        torrent_data = gen.torrent_data(self.private_key)
         self.set_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
-        self.set_header('Content-type', 'text/plain')
-        self.write(torrent_data)
+        self.set_header('Content-Type', 'application/json')
+        self.try_cached('%s.torrent' % filename,
+                        self._get_torrent,
+                        filename)
+
+
+    def _get_torrent(self, filename):
+        gen = self.torrent(filename)
+        return gen.torrent_data(self.private_key)
 
     def get_chunk(self, filename, chunk_number):
-        gen = self.torrent(filename)
         self.set_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
-        self.write(gen.get_chunk(chunk_number))
+        self.try_cached('%s.%d' % (filename, chunk_number),
+                        self._get_chunk,
+                        filename, chunk_number)
+
+    def _get_chunk(self, filename, chunk_number):
+        gen = self.torrent(filename)
+        return gen.get_chunk(chunk_number)
+
+    def try_cached(self, cache_file, method, filename, *args):
+        supports_gzip = 'gzip' in self.request.headers.get('Accept-Encoding', '')
+
+        if self.cache_dir:
+            base_cache_file = os.path.join(self.cache_dir, cache_file)
+            gzip_cache_file = base_cache_file + '.gz'
+
+            if supports_gzip:
+                cache_file = gzip_cache_file
+                self.set_header('Content-Encoding', 'gzip')
+            else:
+                cache_file = base_cache_file
+
+            filepath = os.path.join(self.base_dir, filename)
+            if (os.path.exists(cache_file) and 
+                os.path.getmtime(cache_file) == os.path.getmtime(filepath)
+                ):
+                print "getting from %s" % cache_file
+                self.write(open(cache_file).read())
+                return
+
+        data = method(filename, *args)
+
+        if self.cache_dir:
+            fh = open(base_cache_file, 'w')
+            fh.write(data)
+            fh.close()
+
+            fh = gzip.open(gzip_cache_file, 'wb')
+            fh.write(data)
+            fh.close()
+
+            mtime = os.path.getmtime(filepath)
+            os.utime(base_cache_file, (mtime, mtime))
+            os.utime(gzip_cache_file, (mtime, mtime))
+        
+            if supports_gzip:
+                data = open(gzip_cache_file).read()
+
+        self.write(data)
 
 class GridFileSender(FileSender):
 
