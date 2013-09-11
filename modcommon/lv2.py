@@ -248,7 +248,7 @@ class ControlInputPort(Port):
         if not d['tap_tempo']:
             return
         try:
-            assert d['unit']['symbol'] in ('s', 'ms', 'hz', 'bpm')
+            assert d['unit']['symbol'].lower() in ('s', 'ms', 'hz', 'bpm')
         except (TypeError, AssertionError):
             d['tap_tempo'] = False
 
