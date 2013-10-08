@@ -253,19 +253,22 @@ class Model(object):
                 # we only follow ttl files
                 return
             file_path = path[len('file://'):]
-            
+        
         if file_path in self.parsed_files:
             return
 
-        assert os.path.exists(file_path), "file does not exist: %s" % file_path
-        assert os.path.isfile(file_path), "file is not a file: %s" % file_path
+        open(file_path) # just to raise if it doenst exist
 
         self.parsed_files[file_path] = True #hashlib.md5(open(file_path).read()).hexdigest()
 
         graph = rdflib.ConjunctiveGraph()
         graph.parse(path, format=self.format)
         for extension in graph.triples([None, rdfschema.seeAlso, None]):
-            self.parse(extension[2])
+            try:
+                self.parse(extension[2])
+            except IOError as e:
+                if path.endswith("manifest.ttl"):
+                    raise e
         self.graph += graph
         self._data = None
         
