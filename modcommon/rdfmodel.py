@@ -249,16 +249,16 @@ class Model(object):
             file_path = path
             path = 'file://%s' % path
         else:
-            if not path.startswith('file://'):
-                # we only follow files
+            if not path.startswith('file://') or not path.endswith(".ttl"):
+                # we only follow ttl files
                 return
             file_path = path[len('file://'):]
             
         if file_path in self.parsed_files:
             return
 
-        assert os.path.exists(file_path)
-        assert os.path.isfile(file_path)
+        assert os.path.exists(file_path), "file does not exist: %s" % file_path
+        assert os.path.isfile(file_path), "file is not a file: %s" % file_path
 
         self.parsed_files[file_path] = True #hashlib.md5(open(file_path).read()).hexdigest()
 
