@@ -116,8 +116,7 @@ class InlineModelField(DataField, ModelField):
                     node_type = model.triples([node, rdfsyntax.type, necessary_type]).next()[2]
                 except StopIteration:
                     return None
-
-        return model_class(node, model.graph).data
+        return model_class(node, model.graph, allow_inconsistency=model.allow_inconsistency).data
 
 class ListField(Field):
     def __init__(self, predicate, fieldtype, *argz, **kwargs):
@@ -152,7 +151,7 @@ class ModelSearchField(Field, ModelField):
         for triple in model.triples([None, rdfsyntax.type, self.node_type]):
             subject = triple[0]
             model_class = self.get_model_class(subject, model)
-            res[unicode(subject)] = model_class(subject, model.graph).data
+            res[unicode(subject)] = model_class(subject, model.graph, allow_inconsistency=model.allow_inconsistency).data
         return res                
 
 class FileNotFound(Exception):
@@ -169,7 +168,7 @@ class FileField(StringField):
             data = data[len('file://'):]
             assert os.path.exists(data)
         except AssertionError:
-            raise FileNotFound("%s not found" % data)
+            model.raise_inconsistency(FileNotFound("%s not found" % data))
         self.file_path = data
         return data
 
@@ -181,7 +180,7 @@ class FileContentField(FileField):
         except:
             return None
         if not os.path.isfile(path):
-            raise Exception("%s is not a file" % path)
+            model.raise_inconsistency(Exception("%s is not a file" % path))
         return open(path).read()
 
 class HtmlTemplateField(FileContentField):
@@ -204,14 +203,17 @@ class DirectoryField(FileField):
         if data is None:
             return
 
-        assert os.path.isdir(data)
+        try:
+            assert os.path.isdir(data)
+        except Exception as e:
+            model.raise_inconsistency(e)
         return data
 
 class Model(object):
 
     _type = None
 
-    def __init__(self, subject=None, graph=None, format='n3'):
+    def __init__(self, subject=None, graph=None, format='n3', allow_inconsistency=False):
         if graph:
             self.graph = graph
         else:
@@ -221,6 +223,7 @@ class Model(object):
         self.parsed_files = {}
         self._data = None
         self.base_path = ''
+        self.allow_inconsistency=allow_inconsistency
 
     @property
     def data(self):
@@ -288,3 +291,7 @@ class Model(object):
             data[name] = field.extract(self)
                 
         self._data = data
+
+    def raise_inconsistency(self, exception):
+        if not self.allow_inconsistency:
+            raise exception

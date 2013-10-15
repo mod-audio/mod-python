@@ -63,10 +63,10 @@ class Bundle(model.Model):
     
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
 
-    def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl'):
+    def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl', allow_inconsistency=False):
         if not os.path.exists(units_file):
             raise Exception("Can't find units.ttl file")
-        super(Bundle, self).__init__()
+        super(Bundle, self).__init__(allow_inconsistency=allow_inconsistency)
         self.base_path = os.path.realpath(path)
         if path.endswith('/'):
             path = path[:-1]
@@ -132,7 +132,14 @@ class Bundle(model.Model):
                 raise Exception("Invalid binary file: %s" % binary)
 
             data = dict(plugin.items())
-            data['binary'] = hashlib.md5(open(data['binary']).read()).hexdigest()
+
+            try:
+                contents = open(data['binary']).read()
+            except IOError:
+                assert self.allow_inconsistency, "Bug, we reached an impossible state"
+                contents = ''
+
+            data['binary'] = hashlib.md5(contents).hexdigest()
             serialized = url + '|' + self._data_fingerprint(data)
             plugin['_id'] = hashlib.md5(serialized.encode('utf-8')).hexdigest()[:24]
             plugin['package'] = self.package_name
