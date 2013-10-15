@@ -178,6 +178,7 @@ class Plugin(model.Model):
                                         accepts=[lv2ev.EventPort, lv2core.InputPort])
 
     gui = model.InlineModelField(mod.gui, 'Gui')
+    gui_structure = model.InlineModelField(mod.gui, 'GuiStructure')
 
     hidden = model.BooleanPropertyField(model.rdfsyntax.Property, mod.hidden)
 
@@ -284,6 +285,14 @@ class Gui(model.Model):
     iconTemplate = model.HtmlTemplateField(mod.iconTemplate)
     settingsTemplate = model.HtmlTemplateField(mod.settingsTemplate)
     templateData = model.JsonDataField(mod.templateData)
+    resourcesDirectory = model.DirectoryField(mod.resourcesDirectory)
+    screenshot = model.FileField(mod.screenshot)
+    thumbnail = model.FileField(mod.thumbnail)
+
+class GuiStructure(model.Model):
+    iconTemplate = model.FileField(mod.iconTemplate)
+    settingsTemplate = model.FileField(mod.settingsTemplate)
+    templateData = model.FileField(mod.templateData)
     resourcesDirectory = model.DirectoryField(mod.resourcesDirectory)
     screenshot = model.FileField(mod.screenshot)
     thumbnail = model.FileField(mod.thumbnail)
