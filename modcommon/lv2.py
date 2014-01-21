@@ -9,6 +9,7 @@ doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
 webgui = rdflib.Namespace('http://portalmod.com/ns/webgui#')
 units = rdflib.Namespace('http://lv2plug.in/ns/extensions/units#')
 mod = rdflib.Namespace('http://portalmod.com/ns/modgui#')
+host = rdflib.Namespace('http://portalmod.com/ns/modhost#')
 pprops = rdflib.Namespace('http://lv2plug.in/ns/ext/port-props#')
 atom = rdflib.Namespace('http://lv2plug.in/ns/ext/atom#')
 lv2ev = rdflib.Namespace('http://lv2plug.in/ns/ext/event#')
@@ -159,6 +160,8 @@ class Plugin(model.Model):
 
     microVersion = model.IntegerField(lv2core.microVersion, default=0)
     minorVersion = model.IntegerField(lv2core.minorVersion, default=0)
+
+    bufsize = model.IntegerField(host.recommendedBufferSize, default=128)
 
     order = lambda x: x['index']
     audio_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
