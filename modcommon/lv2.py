@@ -291,6 +291,7 @@ class Gui(model.Model):
     resourcesDirectory = model.DirectoryField(mod.resourcesDirectory)
     screenshot = model.FileField(mod.screenshot)
     thumbnail = model.FileField(mod.thumbnail)
+    stylesheet = model.FileField(mod.stylesheet)
 
 class GuiStructure(model.Model):
     iconTemplate = model.FileField(mod.iconTemplate)
