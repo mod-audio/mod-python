@@ -180,6 +180,11 @@ class Plugin(model.Model):
     event_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'EventPort', order=order,
                                         accepts=[lv2ev.EventPort, lv2core.InputPort])
 
+    atom_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'AtomPort', order=order,
+                                        accepts=[atom.AtomPort, lv2core.OutputPort])
+    event_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'EventPort', order=order,
+                                         accepts=[lv2ev.EventPort, lv2core.OutputPort])
+
     gui = model.InlineModelField(mod.gui, 'Gui')
     gui_structure = model.InlineModelField(mod.gui, 'GuiStructure')
 
@@ -205,13 +210,18 @@ class Plugin(model.Model):
         d['ports']['control']['output'] = d.pop('control_output_ports')
 
         # Get midi ports
-        d['ports']['midi'] = {'input':  [] }
+        d['ports']['midi'] = {'input':  [], 'output': [] }
 
         for port in d.pop('atom_input_ports') + d.pop('event_input_ports'):
             if port['midi']:
                 d['ports']['midi']['input'].append(port)
+        for port in d.pop('atom_output_ports') + d.pop('event_output_ports'):
+            if port['midi']:
+                d['ports']['midi']['output'].append(port)
+
 
         d['ports']['midi']['input'].sort(key=lambda port: port['index'])
+        d['ports']['midi']['output'].sort(key=lambda port: port['index'])
 
         minor = d.get('minorVersion')
         micro = d.get('microVersion')
