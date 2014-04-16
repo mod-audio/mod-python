@@ -1,3 +1,11 @@
+0.99.0
+======
+
+  - NEW: Support for modgui:stylesheet predicate.
+  - NEW: Support for midi output ports
+	
+  This is the first release candidate for 1.0.
+
 0.11
 ====
 
