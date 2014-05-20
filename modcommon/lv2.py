@@ -1,4 +1,4 @@
-import rdflib, os, hashlib, re, random, shutil, subprocess
+import rdflib, os, hashlib, re, random, shutil, subprocess, copy
 from . import rdfmodel as model
 
 # important so developers can catch lv2.BadSyntax instead of this huge path
@@ -266,12 +266,31 @@ class ControlInputPort(Port):
         d = self.data
 
         # Let's make sure that tap_tempo is only true if proper unit is specified
-        if not d['tap_tempo']:
-            return
         try:
             assert d['unit']['symbol'].lower() in ('s', 'ms', 'hz', 'bpm')
         except (TypeError, AssertionError):
             d['tap_tempo'] = False
+
+        
+        # Make port property mask, used by Control Chain protocol
+        property_index = {
+            'integer':      0b10000000,
+            'logarithmic':  0b01000000,
+            'toggled':      0b00100000,
+            'trigger':      0b00010000,
+            'scalePoints': 0b00001000,
+            'enumeration':  0b00000100,
+            'tap_tempo':    0b00000010,
+            'bypass':       0b00000001,
+            }
+        properties = copy.copy(d)
+        properties['scalePoints'] = len(d['scalePoints']) > 0
+        properties['bypass'] = False # TODO
+        mask = 0
+        for prop in property_index.keys():
+            if properties.get(prop):
+                mask |= property_index[prop]
+        d['property_mask'] = mask
 
 class AtomPort(Port):
     midi = model.BooleanPropertyField(atom.supports, midi.MidiEvent)
