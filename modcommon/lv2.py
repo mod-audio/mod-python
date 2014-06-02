@@ -2,7 +2,7 @@ import rdflib, os, hashlib, re, random, shutil, subprocess
 from . import rdfmodel as model
 
 # important so developers can catch lv2.BadSyntax instead of this huge path
-from rdflib.plugins.parsers.notation3 import BadSyntax 
+from rdflib.plugins.parsers.notation3 import BadSyntax
 
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
@@ -61,7 +61,7 @@ category_index = {
 # uses underscore_separation.
 
 class Bundle(model.Model):
-    
+
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
 
     def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl', allow_inconsistency=False):
@@ -100,7 +100,7 @@ class Bundle(model.Model):
             checksum.update(checksums[key])
 
         return checksum.hexdigest()
-    
+
     def _hash(self, data):
         return hashlib.md5(data).hexdigest()
 
@@ -118,7 +118,7 @@ class Bundle(model.Model):
             return ':'.join(chk)
         return ':'.join([ data.__class__.__name__.replace('__', ''),
                           unicode(data) ])
-            
+
     def extract_data(self):
         super(Bundle, self).extract_data()
         self._data['_id'] = self.checksum()[:24]
@@ -145,7 +145,7 @@ class Bundle(model.Model):
             plugin['_id'] = hashlib.md5(serialized.encode('utf-8')).hexdigest()[:24]
             plugin['package'] = self.package_name
             plugin['package_id'] = self._data['_id']
-            
+
 
 class Plugin(model.Model):
 
@@ -171,7 +171,7 @@ class Plugin(model.Model):
 
     control_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlInputPort', order=order,
                                           accepts=[lv2core.ControlPort, lv2core.InputPort])
-    
+
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
 
@@ -197,25 +197,37 @@ class Plugin(model.Model):
             except KeyError:
                 pass
         return []
-        
+
     category = model.TypeField(ns=lv2core, modifier=__category_modifier)
 
     def extract_data(self):
         super(Plugin, self).extract_data()
         d = self.data
+        d['ports_by_symbol'] = {}
+
+        def populate_ports_by_symbol(ports):
+            for port in ports:
+                d['ports_by_symbol'][port['symbol']] = port
+
         d['ports'] = { 'audio': {}, 'control': {} }
         d['ports']['audio']['input'] =    d.pop('audio_input_ports')
         d['ports']['audio']['output'] =   d.pop('audio_output_ports')
         d['ports']['control']['input'] =  d.pop('control_input_ports')
         d['ports']['control']['output'] = d.pop('control_output_ports')
+        populate_ports_by_symbol(d['ports']['audio']['input'])
+        populate_ports_by_symbol(d['ports']['audio']['output'])
+        populate_ports_by_symbol(d['ports']['control']['input'])
+        populate_ports_by_symbol(d['ports']['control']['output'])
 
         # Get midi ports
         d['ports']['midi'] = {'input':  [], 'output': [] }
 
         for port in d.pop('atom_input_ports') + d.pop('event_input_ports'):
+            d['ports_by_symbol'][port['symbol']] = port
             if port['midi']:
                 d['ports']['midi']['input'].append(port)
         for port in d.pop('atom_output_ports') + d.pop('event_output_ports'):
+            d['ports_by_symbol'][port['symbol']] = port
             if port['midi']:
                 d['ports']['midi']['output'].append(port)
 
@@ -237,7 +249,7 @@ class Plugin(model.Model):
         else:
             d['stability'] = u'unstable'
 
-        
+
 
 class Port(model.Model):
     symbol = model.StringField(lv2core.symbol)
@@ -258,6 +270,7 @@ class ControlInputPort(Port):
     logarithmic = model.BooleanPropertyField(lv2core.portProperty, pprops.logarithmic)
     rangeSteps = model.BooleanPropertyField(lv2core.portProperty, pprops.rangeSteps)
     trigger = model.BooleanPropertyField(lv2core.portProperty, pprops.trigger)
+    affects = model.ListField(mod.affects, model.InlineModelField, 'Port', order=lambda x:x['index'])
 
     tap_tempo = model.BooleanPropertyField(lv2core.designation, time.beatsPerMinute)
 
@@ -339,7 +352,7 @@ class BundlePackage(object):
 
             subprocess.Popen(['cp', '-r', path, tmp_dir]).wait()
 
-            proc = subprocess.Popen(['tar', 'zcf', filename, 
+            proc = subprocess.Popen(['tar', 'zcf', filename,
                                      package])
             proc.wait()
 

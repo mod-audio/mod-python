@@ -91,12 +91,12 @@ class BooleanPropertyField(DataField):
 #mixin
 class ModelField(object):
     def get_model_class(self, node, model):
-        if (isinstance(self.model_class, unicode) or 
+        if (isinstance(self.model_class, unicode) or
             isinstance(self.model_class, str)):
             self.model_class = getattr(sys.modules[model.__class__.__module__], self.model_class)
 
         return self.model_class
-        
+
 class InlineModelField(DataField, ModelField):
     def __init__(self, predicate, model_class, *args, **kwargs):
         self.valid_types = None
@@ -139,7 +139,7 @@ class ListField(Field):
                 res.append(data)
         if self.order:
             return sorted(res, key=self.order)
-        return res                
+        return res
 
 class ModelSearchField(Field, ModelField):
     def __init__(self, node_type, model_class):
@@ -152,7 +152,7 @@ class ModelSearchField(Field, ModelField):
             subject = triple[0]
             model_class = self.get_model_class(subject, model)
             res[unicode(subject)] = model_class(subject, model.graph, allow_inconsistency=model.allow_inconsistency).data
-        return res                
+        return res
 
 class FileNotFound(Exception):
     pass
@@ -256,7 +256,7 @@ class Model(object):
                 # we only follow ttl files
                 return
             file_path = path[len('file://'):]
-        
+
         if file_path in self.parsed_files:
             return
 
@@ -274,7 +274,7 @@ class Model(object):
                     raise e
         self.graph += graph
         self._data = None
-        
+
     def get_objects(self, predicate):
         for result in self.triples([self.subject, predicate, None]):
             yield result[2]
@@ -289,7 +289,7 @@ class Model(object):
         data = {}
         for name, field in self.fields():
             data[name] = field.extract(self)
-                
+
         self._data = data
 
     def raise_inconsistency(self, exception):
