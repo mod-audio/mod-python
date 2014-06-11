@@ -2,7 +2,7 @@ import rdflib, os, hashlib, re, random, shutil, subprocess
 from . import rdfmodel as model
 
 # important so developers can catch lv2.BadSyntax instead of this huge path
-from rdflib.plugins.parsers.notation3 import BadSyntax 
+from rdflib.plugins.parsers.notation3 import BadSyntax
 
 lv2core = rdflib.Namespace('http://lv2plug.in/ns/lv2core#')
 doap = rdflib.Namespace('http://usefulinc.com/ns/doap#')
@@ -61,7 +61,7 @@ category_index = {
 # uses underscore_separation.
 
 class Bundle(model.Model):
-    
+
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
 
     def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl', allow_inconsistency=False):
@@ -100,7 +100,7 @@ class Bundle(model.Model):
             checksum.update(checksums[key])
 
         return checksum.hexdigest()
-    
+
     def _hash(self, data):
         return hashlib.md5(data).hexdigest()
 
@@ -118,7 +118,7 @@ class Bundle(model.Model):
             return ':'.join(chk)
         return ':'.join([ data.__class__.__name__.replace('__', ''),
                           unicode(data) ])
-            
+
     def extract_data(self):
         super(Bundle, self).extract_data()
         self._data['_id'] = self.checksum()[:24]
@@ -145,7 +145,7 @@ class Bundle(model.Model):
             plugin['_id'] = hashlib.md5(serialized.encode('utf-8')).hexdigest()[:24]
             plugin['package'] = self.package_name
             plugin['package_id'] = self._data['_id']
-            
+
 
 class Plugin(model.Model):
 
@@ -171,7 +171,7 @@ class Plugin(model.Model):
 
     control_input_ports = model.ListField(lv2core.port, model.InlineModelField, 'ControlInputPort', order=order,
                                           accepts=[lv2core.ControlPort, lv2core.InputPort])
-    
+
     control_output_ports = model.ListField(lv2core.port, model.InlineModelField, 'Port', order=order,
                                            accepts=[lv2core.ControlPort, lv2core.OutputPort])
 
@@ -197,7 +197,7 @@ class Plugin(model.Model):
             except KeyError:
                 pass
         return []
-        
+
     category = model.TypeField(ns=lv2core, modifier=__category_modifier)
 
     def extract_data(self):
@@ -237,7 +237,7 @@ class Plugin(model.Model):
         else:
             d['stability'] = u'unstable'
 
-        
+
 
 class Port(model.Model):
     symbol = model.StringField(lv2core.symbol)
@@ -258,6 +258,7 @@ class ControlInputPort(Port):
     logarithmic = model.BooleanPropertyField(lv2core.portProperty, pprops.logarithmic)
     rangeSteps = model.BooleanPropertyField(lv2core.portProperty, pprops.rangeSteps)
     trigger = model.BooleanPropertyField(lv2core.portProperty, pprops.trigger)
+    sampleRate = model.BooleanPropertyField(lv2core.portProperty, lv2core.sampleRate)
 
     tap_tempo = model.BooleanPropertyField(lv2core.designation, time.beatsPerMinute)
 
@@ -272,6 +273,17 @@ class ControlInputPort(Port):
             assert d['unit']['symbol'].lower() in ('s', 'ms', 'hz', 'bpm')
         except (TypeError, AssertionError):
             d['tap_tempo'] = False
+
+        # sampleRate portProperty should change minimum and maximum
+        if d['sampleRate'] and d.get("minimum", None) and d.get("maximum", None):
+            try:
+                sr = subprocess.Popen(['jack_samplerate'], stdout=subprocess.PIPE).stdout.read()
+                sr = int(sr.strip())
+            except Exception, e:
+                sr = 44100
+
+            d['minimum'] = d['minimum'] * sr
+            d['maximum'] = d['maximum'] * sr
 
 class AtomPort(Port):
     midi = model.BooleanPropertyField(atom.supports, midi.MidiEvent)
@@ -339,7 +351,7 @@ class BundlePackage(object):
 
             subprocess.Popen(['cp', '-r', path, tmp_dir]).wait()
 
-            proc = subprocess.Popen(['tar', 'zcf', filename, 
+            proc = subprocess.Popen(['tar', 'zcf', filename,
                                      package])
             proc.wait()
 
