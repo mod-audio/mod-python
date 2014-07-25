@@ -65,6 +65,7 @@ class Bundle(model.Model):
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
 
     def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl', allow_inconsistency=False):
+        import ipdb; ipdb.set_trace()
         if not os.path.exists(units_file):
             raise Exception("Can't find units.ttl file")
         super(Bundle, self).__init__(allow_inconsistency=allow_inconsistency)
@@ -266,6 +267,16 @@ class ControlInputPort(Port):
         super(ControlInputPort, self).extract_data()
         d = self.data
 
+         # sampleRate portProperty should change minimum and maximum
+        if d['sampleRate'] and d.get("minimum", None) and d.get("maximum", None):
+            try:
+                sr = subprocess.Popen(['jack_samplerate'], stdout=subprocess.PIPE).stdout.read()
+                sr = int(sr.strip())
+            except Exception, e:
+                sr = 44100
+            d['minimum'] = d['minimum'] * sr
+            d['maximum'] = d['maximum'] * sr
+
         # Let's make sure that tap_tempo is only true if proper unit is specified
         if not d['tap_tempo']:
             return
@@ -274,16 +285,6 @@ class ControlInputPort(Port):
         except (TypeError, AssertionError):
             d['tap_tempo'] = False
 
-        # sampleRate portProperty should change minimum and maximum
-        if d['sampleRate'] and d.get("minimum", None) and d.get("maximum", None):
-            try:
-                sr = subprocess.Popen(['jack_samplerate'], stdout=subprocess.PIPE).stdout.read()
-                sr = int(sr.strip())
-            except Exception, e:
-                sr = 44100
-
-            d['minimum'] = d['minimum'] * sr
-            d['maximum'] = d['maximum'] * sr
 
 class AtomPort(Port):
     midi = model.BooleanPropertyField(atom.supports, midi.MidiEvent)
