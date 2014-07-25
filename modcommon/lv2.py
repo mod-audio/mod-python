@@ -267,12 +267,14 @@ class ControlInputPort(Port):
         d = self.data
 
          # sampleRate portProperty should change minimum and maximum
+         sr = 48000
         if d['sampleRate'] and d.get("minimum", None) and d.get("maximum", None):
             try:
                 sr = subprocess.Popen(['jack_samplerate'], stdout=subprocess.PIPE).stdout.read()
-                sr = int(sr.strip())
+                if sr.strip():
+                    sr = int(sr.strip())
             except Exception, e:
-                sr = 44100
+                sr = 48000
             d['minimum'] = d['minimum'] * sr
             d['maximum'] = d['maximum'] * sr
 
