@@ -65,7 +65,6 @@ class Bundle(model.Model):
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
 
     def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl', allow_inconsistency=False):
-        import ipdb; ipdb.set_trace()
         if not os.path.exists(units_file):
             raise Exception("Can't find units.ttl file")
         super(Bundle, self).__init__(allow_inconsistency=allow_inconsistency)
