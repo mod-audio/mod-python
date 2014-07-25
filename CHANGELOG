@@ -1,3 +1,8 @@
+0.99.2
+======
+
+  - FIX: minor fix to support for port property lv2core:sampleRate
+
 0.99.1
 ======
 
