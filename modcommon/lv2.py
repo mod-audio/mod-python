@@ -15,6 +15,7 @@ atom = rdflib.Namespace('http://lv2plug.in/ns/ext/atom#')
 lv2ev = rdflib.Namespace('http://lv2plug.in/ns/ext/event#')
 midi = rdflib.Namespace('http://lv2plug.in/ns/ext/midi#')
 time = rdflib.Namespace('http://lv2plug.in/ns/ext/time/#')
+pset = rdflib.Namespace('http://lv2plug.in/ns/ext/presets#')
 
 category_index = {
     'DelayPlugin': ['Delay'],
@@ -63,6 +64,7 @@ category_index = {
 class Bundle(model.Model):
 
     plugins = model.ModelSearchField(lv2core.Plugin, 'Plugin')
+    presets = model.ModelSearchField(pset.Preset, 'Preset')
 
     def __init__(self, path, units_file='/usr/lib/lv2/units.lv2/units.ttl', allow_inconsistency=False):
         if not os.path.exists(units_file):
@@ -145,6 +147,25 @@ class Bundle(model.Model):
             plugin['_id'] = hashlib.md5(serialized.encode('utf-8')).hexdigest()[:24]
             plugin['package'] = self.package_name
             plugin['package_id'] = self._data['_id']
+            plugin['presets'] = dict([ (url,preset) for url,preset in self._data['presets'].items()
+                                      if preset['applies_to']['url'] == plugin['url']])
+        for key, plugin in self._data['plugins'].items():
+            for k, preset in plugin['presets'].items():
+                if 'applies_to' in preset.keys():
+                    del preset['applies_to']
+        del self._data['presets']
+
+
+class Preset(model.Model):
+    url = model.IDField()
+    applies_to = model.InlineModelField(lv2core.appliesTo, 'Plugin')
+    label = model.StringField(model.rdfschema.label)
+    ports = model.ListField(lv2core.port, model.InlineModelField, 'PresetPort')
+
+
+class PresetPort(model.Model):
+    symbol = model.StringField(lv2core.symbol)
+    value = model.FloatField(pset.value)
 
 
 class Plugin(model.Model):
