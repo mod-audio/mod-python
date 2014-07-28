@@ -1,5 +1,5 @@
 pkgname=mod-common
-pkgver=0.99.2
+pkgver=0.99.3
 pkgrel=1
 pkgdesc="MOD Libraries"
 license=("BSD")
