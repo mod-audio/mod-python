@@ -147,7 +147,7 @@ class Bundle(model.Model):
             plugin['_id'] = hashlib.md5(serialized.encode('utf-8')).hexdigest()[:24]
             plugin['package'] = self.package_name
             plugin['package_id'] = self._data['_id']
-            plugin['presets'] = dict([ (url,preset) for url,preset in self._data['presets'].items()
+            plugin['presets'] = dict([ (preset['label'],preset) for url,preset in self._data['presets'].items()
                                       if preset['applies_to']['url'] == plugin['url']])
         for key, plugin in self._data['plugins'].items():
             for k, preset in plugin['presets'].items():
