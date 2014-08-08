@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 
 setup(name = 'modcommon',
-      version = '0.99.3',
+      version = '0.99.4',
       description = 'MOD common libraries, used by both device, SDK and cloud',
       author = "Luis Fagundes",
       author_email = "lhfagundes@hacklab.com.br",
