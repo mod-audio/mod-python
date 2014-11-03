@@ -74,7 +74,7 @@ class Bundle(model.Model):
         if path.endswith('/'):
             path = path[:-1]
         self.package_name = unicode(path.split('/')[-1])
-        if not re.match('^[A-Za-z0-9._-]+$', self.package_name):
+        if not re.match('^[A-Za-z0-9. _-]+$', self.package_name):
             raise Exception("Invalid package name: %s" % self.package_name)
 
         self.parse(os.path.join(path, 'manifest.ttl'))
