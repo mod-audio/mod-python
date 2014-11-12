@@ -92,7 +92,7 @@ class FileSender(tornado.web.RequestHandler):
             if (os.path.exists(cache_file) and 
                 os.path.getmtime(cache_file) == os.path.getmtime(filepath)
                 ):
-                print "getting from %s" % cache_file
+                print("getting from %s" % cache_file)
                 self.write(open(cache_file).read())
                 return
 

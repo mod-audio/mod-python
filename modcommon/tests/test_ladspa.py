@@ -9,7 +9,7 @@ class PluginTest(unittest.TestCase):
         ROOT = os.path.dirname(os.path.realpath(__file__))
         self.plugin_path = os.path.join(ROOT, 'caps-AmpV.so')
         if not os.path.exists(self.plugin_path):
-            print "You must compile caps-AmpV.so and put in %s" % ROOT
+            print("You must compile caps-AmpV.so and put in %s" % ROOT)
             self.fail()
 
     def _test_data_is_properly_extracted_from_plugin(self):
