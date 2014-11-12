@@ -5,6 +5,6 @@ def json_handler(obj):
     if isinstance(obj, datetime.datetime):
         return obj.isoformat()
     if isinstance(obj, ObjectId):
-        return unicode(obj)
+        return str(obj)
     return None
 

@@ -86,7 +86,7 @@ class BasicFieldTest(BaseTest):
     
     def test_string_field(self):
         self.assertEquals(self.data['name'], "This is my name")
-        self.assertTrue(isinstance(self.data['name'], unicode))
+        self.assertTrue(isinstance(self.data['name'], str))
 
     def test_integer_field(self):
         self.assertEquals(self.data['intval'], 4)
@@ -129,7 +129,7 @@ class TestInlineModel(BaseTest):
         self.assertEquals(self.data['person']['age'], 33)
         self.assertAlmostEquals(self.data['person']['weight'], 75.7)
 
-        self.assertTrue(isinstance(self.data['person']['name'], unicode))
+        self.assertTrue(isinstance(self.data['person']['name'], str))
         self.assertTrue(isinstance(self.data['person']['age'], int))
         self.assertTrue(isinstance(self.data['person']['weight'], float))
 

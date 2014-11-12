@@ -22,7 +22,7 @@ class TypeField(Field):
     def extract(self, model):
         data = {}
         for triple in model.triples([model.subject, rdfsyntax.type, None]):
-            url = unicode(triple[2])
+            url = str(triple[2])
             if self.ns:
                 if not url.startswith(self.ns):
                     continue
@@ -33,7 +33,7 @@ class TypeField(Field):
 
 class IDField(Field):
     def extract(self, model):
-        return unicode(model.subject)
+        return str(model.subject)
 
 class DataField(Field):
     def __init__(self, predicate, modifier=None, filter=None, default=None):
@@ -59,7 +59,7 @@ class StringField(DataField):
     def format_data(self, data, model):
         if data is None:
             return
-        return unicode(data)
+        return str(data)
 
 class IntegerField(DataField):
 
@@ -91,8 +91,7 @@ class BooleanPropertyField(DataField):
 #mixin
 class ModelField(object):
     def get_model_class(self, node, model):
-        if (isinstance(self.model_class, unicode) or 
-            isinstance(self.model_class, str)):
+        if (isinstance(self.model_class, str)):
             self.model_class = getattr(sys.modules[model.__class__.__module__], self.model_class)
 
         return self.model_class
@@ -113,7 +112,7 @@ class InlineModelField(DataField, ModelField):
         if self.valid_types:
             for necessary_type in self.valid_types:
                 try:
-                    node_type = model.triples([node, rdfsyntax.type, necessary_type]).next()[2]
+                    node_type = model.triples([node, rdfsyntax.type, necessary_type]).__next__()[2]
                 except StopIteration:
                     return None
         return model_class(node, model.graph, allow_inconsistency=model.allow_inconsistency).data
@@ -151,7 +150,7 @@ class ModelSearchField(Field, ModelField):
         for triple in model.triples([None, rdfsyntax.type, self.node_type]):
             subject = triple[0]
             model_class = self.get_model_class(subject, model)
-            res[unicode(subject)] = model_class(subject, model.graph, allow_inconsistency=model.allow_inconsistency).data
+            res[str(subject)] = model_class(subject, model.graph, allow_inconsistency=model.allow_inconsistency).data
         return res                
 
 class FileNotFound(Exception):

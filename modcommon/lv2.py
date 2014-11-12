@@ -1,5 +1,5 @@
 import rdflib, os, hashlib, re, random, shutil, subprocess
-from . import rdfmodel as model
+import modcommon.rdfmodel as model
 
 # important so developers can catch lv2.BadSyntax instead of this huge path
 from rdflib.plugins.parsers.notation3 import BadSyntax
@@ -73,7 +73,7 @@ class Bundle(model.Model):
         self.base_path = os.path.realpath(path)
         if not os.path.isdir(path) or not "manifest.ttl" in map(str.lower, os.listdir(path)):
             raise Exception("Invalid package name: %s" % self.package_name)
-        self.package_name = unicode(path.split('/')[-1])
+        self.package_name = path.split('/')[-1]
 
         self.parse(os.path.join(path, 'manifest.ttl'))
         self.parse(units_file)
@@ -92,12 +92,12 @@ class Bundle(model.Model):
             key = path[len(self.base_path):]
             if checksums.get(key):
                 continue
-            checksums[key] = hashlib.md5(open(path).read()).hexdigest()
+            checksums[key] = hashlib.md5(open(path).read().encode("utf-8", errors="ignore")).hexdigest()
 
         checksum = hashlib.md5()
         for key in sorted(checksums.keys()):
-            checksum.update(key)
-            checksum.update(checksums[key])
+            checksum.update(key.encode("utf-8"))
+            checksum.update(checksums[key].encode("utf-8"))
 
         return checksum.hexdigest()
 
@@ -117,7 +117,7 @@ class Bundle(model.Model):
             chk = [ "dict" ] + chk
             return ':'.join(chk)
         return ':'.join([ data.__class__.__name__.replace('__', ''),
-                          unicode(data) ])
+                          str(data) ])
 
     def extract_data(self):
         super(Bundle, self).extract_data()
@@ -135,7 +135,7 @@ class Bundle(model.Model):
             data = dict(plugin.items())
 
             try:
-                contents = open(data['binary']).read()
+                contents = open(data['binary']).read().encode("utf-8", errors="ignore")
             except IOError:
                 assert self.allow_inconsistency, "Bug, we reached an impossible state"
                 contents = ''
@@ -292,7 +292,7 @@ class ControlInputPort(Port):
                 sr = subprocess.Popen(['jack_samplerate'], stdout=subprocess.PIPE).stdout.read()
                 if sr.strip():
                     sr = int(sr.strip())
-            except Exception, e:
+            except:
                 sr = 48000
             d['minimum'] = d['minimum'] * sr
             d['maximum'] = d['maximum'] * sr

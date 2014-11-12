@@ -58,7 +58,7 @@ class PluginCollection(object):
             try:
                 key = self.schema_keys[pred.encode()]
             except KeyError:
-                print "schema desconhecido: %s" % pred.encode()
+                print("schema desconhecido: %s" % pred.encode())
                 continue
 
             plugin[key] = obj
