@@ -35,7 +35,7 @@ class Index(object):
             try:
                 data[key] = obj[key]
             except KeyError:
-                data[key] = u''
+                data[key] = ''
         return data
 
     def find(self, **kwargs):

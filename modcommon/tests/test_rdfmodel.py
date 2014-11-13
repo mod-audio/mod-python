@@ -138,9 +138,9 @@ class TestInlineModel(BaseTest):
         personlist = sorted(personlist, key=lambda x: x['age'])
 
         self.assertEquals(personlist, [{ 'item_type': { 'Person': True }, 
-                                         'age': 21, 'name': u'Person One', 'weight': 71.1},
+                                         'age': 21, 'name': 'Person One', 'weight': 71.1},
                                        { 'item_type': { 'Person': True },
-                                         'age': 22, 'name': u'Person Two', 'weight': 72.2}])
+                                         'age': 22, 'name': 'Person Two', 'weight': 72.2}])
 
 class TestModifier(BaseTest):
     def test_basic_modifier(self):

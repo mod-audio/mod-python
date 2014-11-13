@@ -104,9 +104,9 @@ class BundleTest(unittest.TestCase):
     def test_scalepoints(self):
         port = calf.data['plugins']['http://calf.sourceforge.net/plugins/Organ']['ports']['control']['input'][20]
         self.assertEquals(len(port['scalePoints']), 36)
-        self.assertEquals(port['scalePoints'][0], {'label': u'Sin', 'value': 0.0})
-        self.assertEquals(port['scalePoints'][1], {'label': u'S0', 'value': 1.0})
-        self.assertEquals(port['scalePoints'][35], {'label': u'P:Chant', 'value': 35.0})
+        self.assertEquals(port['scalePoints'][0], {'label': 'Sin', 'value': 0.0})
+        self.assertEquals(port['scalePoints'][1], {'label': 'S0', 'value': 1.0})
+        self.assertEquals(port['scalePoints'][35], {'label': 'P:Chant', 'value': 35.0})
 
     @attr(slow=1)
     def test_units(self):

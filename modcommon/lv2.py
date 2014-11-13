@@ -248,13 +248,13 @@ class Plugin(model.Model):
         d['version'] = '%d.%d' % (minor, micro)
 
         if minor == 0 and micro == 0:
-            d['stability'] = u'experimental'
+            d['stability'] = 'experimental'
         elif minor % 2 == 0 and micro % 2 == 0:
-            d['stability'] = u'stable'
+            d['stability'] = 'stable'
         elif minor % 2 == 0:
-            d['stability'] = u'testing'
+            d['stability'] = 'testing'
         else:
-            d['stability'] = u'unstable'
+            d['stability'] = 'unstable'
 
 
 
