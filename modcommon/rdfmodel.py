@@ -259,7 +259,8 @@ class Model(object):
         if file_path in self.parsed_files:
             return
 
-        open(file_path) # just to raise if it doenst exist
+        x = open(file_path) # just to raise if it doenst exist
+        x.close()
 
         self.parsed_files[file_path] = True #hashlib.md5(open(file_path).read()).hexdigest()
 
