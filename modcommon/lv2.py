@@ -71,9 +71,9 @@ class Bundle(model.Model):
             raise Exception("Can't find units.ttl file")
         super(Bundle, self).__init__(allow_inconsistency=allow_inconsistency)
         self.base_path = os.path.realpath(path)
+        self.package_name = path.split('/')[-1]
         if not os.path.isdir(path) or not "manifest.ttl" in map(str.lower, os.listdir(path)):
             raise Exception("Invalid package name: %s" % self.package_name)
-        self.package_name = path.split('/')[-1]
 
         self.parse(os.path.join(path, 'manifest.ttl'))
         self.parse(units_file)
