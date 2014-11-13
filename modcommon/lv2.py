@@ -289,7 +289,7 @@ class ControlInputPort(Port):
         sr = 48000
         if d['sampleRate'] and d.get("minimum", None) and d.get("maximum", None):
             try:
-                sr = subprocess.Popen(['jack_samplerate'], stdout=subprocess.PIPE).stdout.read()
+                sr = subprocess.Popen(['jack_samplerate'], stdout=subprocess.PIPE).stdout.read().decode("utf-8", errors="ignore")
                 if sr.strip():
                     sr = int(sr.strip())
             except:
@@ -376,7 +376,7 @@ class BundlePackage(object):
                                      package])
             proc.wait()
 
-            plugin_fh = open(filename)
+            plugin_fh = open(filename, 'rb')
 
         finally:
             os.chdir(cur_dir)

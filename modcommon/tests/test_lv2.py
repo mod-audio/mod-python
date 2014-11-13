@@ -36,7 +36,7 @@ class BundleTest(unittest.TestCase):
         self.assertEquals(m['developer']['homepage'],
                           'https://launchpad.net/invada-studio')
         self.assertEquals(m['license'], 'gpl')
-        
+
         self.assertEquals(len(m['ports']['audio']['input']), 2)
         self.assertEquals(len(m['ports']['audio']['output']), 2)
         self.assertEquals(len(m['ports']['control']['input']), 8)
@@ -226,7 +226,6 @@ class BundleTest(unittest.TestCase):
         self.assertEquals(delay['stability'], 'unstable')
         self.assertEquals(filter['version'], '0.2')
         self.assertEquals(filter['stability'], 'stable')
-        
 
 class BundlePackageTest(unittest.TestCase):
     @attr(slow=1)
@@ -237,7 +236,7 @@ class BundlePackageTest(unittest.TestCase):
         try:
             os.mkdir(tmp_dir)
             os.chdir(tmp_dir)
-            open('plugin.tgz', 'w').write(package.read())
+            open('plugin.tgz', 'wb').write(package.read())
             subprocess.Popen(['tar', 'zxf', 'plugin.tgz']).wait()
             os.chdir(cur_dir)
             bundle = Bundle(os.path.join(tmp_dir, 'invada.lv2'))
@@ -245,3 +244,6 @@ class BundlePackageTest(unittest.TestCase):
         finally:
             os.chdir(cur_dir)
             shutil.rmtree(tmp_dir)
+
+if __name__ == '__main__':
+    unittest.main()
