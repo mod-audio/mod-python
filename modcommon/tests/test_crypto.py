@@ -16,12 +16,26 @@ class Communication(unittest.TestCase):
         recvr_key = NewKey(256)
         wrong_key = NewKey(256)
 
-        open(self.sendr_prv, 'w').write(sendr_key.private)
-        open(self.sendr_pub, 'w').write(sendr_key.public)
-        open(self.recvr_prv, 'w').write(recvr_key.private)
-        open(self.recvr_pub, 'w').write(recvr_key.public)
-        open(self.wrong_prv, 'w').write(wrong_key.private)
-        open(self.wrong_pub, 'w').write(wrong_key.public)
+        fsendpubl = open(self.sendr_prv, 'w')
+        fsendpriv = open(self.sendr_pub, 'w')
+        frecvpubl = open(self.recvr_prv, 'w')
+        frecvpriv = open(self.recvr_pub, 'w')
+        fwrngpubl = open(self.wrong_prv, 'w')
+        fwrngpriv = open(self.wrong_pub, 'w')
+
+        fsendpubl.write(sendr_key.private)
+        fsendpriv.write(sendr_key.public)
+        frecvpubl.write(recvr_key.private)
+        frecvpriv.write(recvr_key.public)
+        fwrngpubl.write(wrong_key.private)
+        fwrngpriv.write(wrong_key.public)
+
+        fsendpubl.close()
+        fsendpriv.close()
+        frecvpubl.close()
+        frecvpriv.close()
+        fwrngpubl.close()
+        fwrngpriv.close()
 
     def tearDown(self):
         for key in (self.sendr_prv, self.sendr_pub,
@@ -33,7 +47,7 @@ class Communication(unittest.TestCase):
         sender = Sender(self.sendr_prv, "Hello World")
         receiver = Receiver(self.sendr_pub, sender.pack())
 
-        self.assertEquals(receiver.unpack(), "Hello World")
+        self.assertEqual(receiver.unpack(), "Hello World")
 
     def test_message_with_wrong_key_is_rejected(self):
         sender = Sender(self.sendr_prv, "Hello World")
@@ -44,14 +58,11 @@ class Communication(unittest.TestCase):
             pass
         else:
             self.fail()
-        
+
     def test_packed_communication_is_json_serializable(self):
         sender = Sender(self.sendr_prv, "Hello World")
         import json
         json.dumps(sender.pack())
 
-
-
 if __name__ == '__main__':
     unittest.main()
-        
