@@ -15,8 +15,8 @@ class TorrentGenerator(object):
             piece_length = self._calculate_length()
         self.piece_length = piece_length
 
-    def open(self):
-        return open(self.path)
+    def open(self, mode='rb'):
+        return open(self.path, mode)
 
     def _calculate_length(self):
         size = os.path.getsize(self.path)
@@ -43,7 +43,7 @@ class TorrentGenerator(object):
 
         checksum = md5()
         torrent['pieces'] = []
-        fp = open(self.path)
+        fp = open(self.path, 'rb')
         while fp.tell() < length:
             chunk = fp.read(self.piece_length)
             checksum.update(chunk)
@@ -110,7 +110,7 @@ class TorrentReceiver(object):
 
     def _generate_id(self):
         id_data = '\t'.join([ str(self.torrent[key]) for key in ('filename', 'md5', 'piece_length') ])
-        return md5(id_data).hexdigest()
+        return md5(id_data.encode('utf-8')).hexdigest()
 
     def load(self, torrent_data):
         self.torrent = json.loads(torrent_data)
@@ -210,7 +210,7 @@ class TorrentReceiver(object):
         os.remove(self.statusfile)
 
     def _verify_checksum(self, filename):
-        fp = open(filename)
+        fp = open(filename, 'rb')
 
         chk = md5()
         while fp.tell() < self.length:
