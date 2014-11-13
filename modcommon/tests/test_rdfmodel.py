@@ -85,15 +85,15 @@ class BaseTest(unittest.TestCase):
 class BasicFieldTest(BaseTest):
     
     def test_string_field(self):
-        self.assertEquals(self.data['name'], "This is my name")
+        self.assertEqual(self.data['name'], "This is my name")
         self.assertTrue(isinstance(self.data['name'], str))
 
     def test_integer_field(self):
-        self.assertEquals(self.data['intval'], 4)
+        self.assertEqual(self.data['intval'], 4)
         self.assertTrue(isinstance(self.data['intval'], int))
 
     def test_float_field(self):
-        self.assertAlmostEquals(self.data['floatval'], 3.141592)
+        self.assertAlmostEqual(self.data['floatval'], 3.141592)
         self.assertTrue(isinstance(self.data['floatval'], float))
 
     def test_nonexisting_field(self):
@@ -104,30 +104,30 @@ class BasicFieldTest(BaseTest):
 class ListTest(BaseTest):
     
     def test_integer_list(self):
-        self.assertEquals(sorted(self.data['intlist']), [2, 3])
+        self.assertEqual(sorted(self.data['intlist']), [2, 3])
         
     def test_float_list(self):
-        self.assertEquals(sorted(self.data['floatlist']), [2.1, 3.1])
+        self.assertEqual(sorted(self.data['floatlist']), [2.1, 3.1])
         
     def test_string_list(self):
-        self.assertEquals(sorted(self.data['stringlist']), ["One", "Three", "Two"])
+        self.assertEqual(sorted(self.data['stringlist']), ["One", "Three", "Two"])
 
     def test_mixed_list(self):
-        self.assertEquals(sorted(self.data['stringmix']), ["2", "3.141592", "One"])
-        self.assertEquals(sorted(self.data['floatmix']), [2.0, 3.141592])
-        self.assertEquals(sorted(self.data['intmix']), [2])
+        self.assertEqual(sorted(self.data['stringmix']), ["2", "3.141592", "One"])
+        self.assertEqual(sorted(self.data['floatmix']), [2.0, 3.141592])
+        self.assertEqual(sorted(self.data['intmix']), [2])
 
 class TestObjectChoice(BaseTest):
     def test_object_choice(self):
-        self.assertEquals(self.data['pickint'], 2)
+        self.assertEqual(self.data['pickint'], 2)
         self.assertTrue(self.data['pickfloat'] in (2.0, 3.141592))
         self.assertTrue(self.data['pickstring'] in (u"2", u"3.141592", "One"))
 
 class TestInlineModel(BaseTest):
     def test_inline_model(self):
-        self.assertEquals(self.data['person']['name'], 'John Smith')
-        self.assertEquals(self.data['person']['age'], 33)
-        self.assertAlmostEquals(self.data['person']['weight'], 75.7)
+        self.assertEqual(self.data['person']['name'], 'John Smith')
+        self.assertEqual(self.data['person']['age'], 33)
+        self.assertAlmostEqual(self.data['person']['weight'], 75.7)
 
         self.assertTrue(isinstance(self.data['person']['name'], str))
         self.assertTrue(isinstance(self.data['person']['age'], int))
@@ -137,46 +137,46 @@ class TestInlineModel(BaseTest):
         personlist = self.data['personlist']
         personlist = sorted(personlist, key=lambda x: x['age'])
 
-        self.assertEquals(personlist, [{ 'item_type': { 'Person': True }, 
+        self.assertEqual(personlist, [{ 'item_type': { 'Person': True }, 
                                          'age': 21, 'name': 'Person One', 'weight': 71.1},
                                        { 'item_type': { 'Person': True },
                                          'age': 22, 'name': 'Person Two', 'weight': 72.2}])
 
 class TestModifier(BaseTest):
     def test_basic_modifier(self):
-        self.assertEquals(self.data['modifint'], 5)
-        self.assertAlmostEquals(self.data['modiffloat'], 3.141592/2)
-        self.assertEquals(self.data['modifstring'], 'This')
+        self.assertEqual(self.data['modifint'], 5)
+        self.assertAlmostEqual(self.data['modiffloat'], 3.141592/2)
+        self.assertEqual(self.data['modifstring'], 'This')
 
     def test_list_modifier(self):
-        self.assertEquals(sorted(self.data['modiflist']), [3, 4])
+        self.assertEqual(sorted(self.data['modiflist']), [3, 4])
 
 class TestFilter(BaseTest):
     def test_list_filter(self):
-        self.assertEquals(self.data['filterlist'], [ 3 ])
+        self.assertEqual(self.data['filterlist'], [ 3 ])
 
 class TestTypeFilter(BaseTest):
     def test_type_filter(self):
-        self.assertEquals(self.data['animallist'], [ { 'item_type': { 'Person': True },
+        self.assertEqual(self.data['animallist'], [ { 'item_type': { 'Person': True },
                                                        'name': 'John',
                                                        'age': None,
                                                        'weight': None,
-                                                       } ])
+                                                     } ])
 
     def test_type_combination_filter(self):
-        self.assertEquals(self.data['smartpeople'], [ { 'item_type': { 'Person': True, 'Smart': True },
+        self.assertEqual(self.data['smartpeople'], [ { 'item_type': { 'Person': True, 'Smart': True },
                                                         'name': 'Smart John',
                                                         'age': None,
                                                         'weight': None,
-                                                        } ])
+                                                      } ])
 
 class TestType(BaseTest):
     def test_type(self):
-        self.assertEquals(self.data['item_type'],
-                          { 'http://test/ns#Item': True })
+        self.assertEqual(self.data['item_type'],
+                         { 'http://test/ns#Item': True })
 
-        self.assertEquals(self.data['item_type_with_ns'],
-                          { 'Item': True })
+        self.assertEqual(self.data['item_type_with_ns'],
+                         { 'Item': True })
 
         
 
@@ -214,10 +214,10 @@ class TestSearchField(BaseTest):
 
 
     def test_search_field(self):
-        self.assertEquals(self.data, { 'items': { 'http://mytest/otherstuff': {'name': 'This is one stuff'},
+        self.assertEqual(self.data, { 'items': { 'http://mytest/otherstuff': {'name': 'This is one stuff'},
                                                   'http://mytest/anotherstuff': {'name': 'This is another stuff'},
-                                                  }
-                                       })
+                                               }
+                                    })
 
 class AmbiguousModel(model.Model):
     name = model.StringField([ns.name, otherns.name])
@@ -232,33 +232,36 @@ class AmbiguousTest(BaseTest):
         self.data = item.data
 
     def test_a_list_of_possible_predicates_can_be_specified(self):
-        self.assertEquals(self.data['name'], "My Name")
-        self.assertEquals(self.data['value'], 17)
+        self.assertEqual(self.data['name'], "My Name")
+        self.assertEqual(self.data['value'], 17)
 
 class FileFieldTest(BaseTest):
     def test_file_field(self):
-        self.assertEquals(self.data['thisfile'], 
-                          os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                       'test_rdfmodel.py'))
+        self.assertEqual(self.data['thisfile'], 
+                         os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                      'test_rdfmodel.py'))
 
 class FileContentFieldTest(BaseTest):
     def test_file_content_field(self):
-        self.assertEquals(self.data['file_content'], 'Hello World! :-)\n')
+        self.assertEqual(self.data['file_content'], 'Hello World! :-)\n')
     def test_html_template_field(self):
-        self.assertEquals(self.data['html_template'], '<div>Hello World</div>')
+        self.assertEqual(self.data['html_template'], '<div>Hello World</div>')
         
 class JsonDataFieldTest(BaseTest):
     def test_json_data_field(self):
-        self.assertEquals(self.data['json_data'], {'Hello': 'World'})        
+        self.assertEqual(self.data['json_data'], {'Hello': 'World'})        
 
 class DirectoryFieldTest(BaseTest):
     def test_directory_field(self):
-        self.assertEquals(self.data['invadadir'], 
-                          os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                       'invada.lv2'))
+        self.assertEqual(self.data['invadadir'], 
+                         os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                      'invada.lv2'))
         
 class DefaultTest(BaseTest):
     def test_default_values(self):
-        self.assertEquals(self.data['default_int'], 3)
+        self.assertEqual(self.data['default_int'], 3)
 
 # TODO test list order
+
+if __name__ == '__main__':
+    unittest.main()
