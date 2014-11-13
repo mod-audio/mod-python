@@ -92,12 +92,12 @@ class Bundle(model.Model):
             key = path[len(self.base_path):]
             if checksums.get(key):
                 continue
-            checksums[key] = hashlib.md5(open(path).read().encode("utf-8", errors="ignore")).hexdigest()
+            checksums[key] = hashlib.md5(open(path, 'rb').read()).hexdigest()
 
         checksum = hashlib.md5()
         for key in sorted(checksums.keys()):
-            checksum.update(key.encode("utf-8"))
-            checksum.update(checksums[key].encode("utf-8"))
+            checksum.update(key.encode('utf-8'))
+            checksum.update(checksums[key].encode('utf-8'))
 
         return checksum.hexdigest()
 
@@ -135,7 +135,7 @@ class Bundle(model.Model):
             data = dict(plugin.items())
 
             try:
-                contents = open(data['binary']).read().encode("utf-8", errors="ignore")
+                contents = open(data['binary'], 'rb').read()
             except IOError:
                 assert self.allow_inconsistency, "Bug, we reached an impossible state"
                 contents = ''
