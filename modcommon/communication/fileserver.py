@@ -167,7 +167,7 @@ class FileReceiver(tornado.web.RequestHandler):
         
         Subclass must implement download_tmp_dir, remote_public_key properties and destination_dir
         """
-        torrent_data = self.request.body
+        torrent_data = self.request.body.decode("utf-8", errors="ignore")
         receiver = TorrentReceiver(download_tmp_dir=self.download_tmp_dir, 
                                    remote_public_key=self.remote_public_key,
                                    destination_dir=self.destination_dir)

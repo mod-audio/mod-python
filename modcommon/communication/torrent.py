@@ -106,7 +106,7 @@ class TorrentReceiver(object):
         self.destination = destination_dir
         self.torrent_id = torrent_id
         if torrent_id:
-            self.load(open(self.torrentfile).read())
+            self.load(open(self.torrentfile, 'rb').read())
 
     def _generate_id(self):
         id_data = '\t'.join([ str(self.torrent[key]) for key in ('filename', 'md5', 'piece_length') ])
